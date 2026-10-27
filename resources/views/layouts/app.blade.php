@@ -7,6 +7,15 @@
 
         <title>{{ $title ?? config('app.name', 'IT Worklog') }}</title>
 
+        <script>
+            (() => {
+                const theme = localStorage.getItem('worklog-theme');
+                if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                }
+            })();
+        </script>
+
         <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo-bp.svg') }}">
         <link rel="alternate icon" href="{{ asset('images/logo-bp.png') }}">
 
@@ -70,6 +79,22 @@
                         <span class="hidden text-xs font-semibold text-slate-500 sm:inline">
                             {{ now()->translatedFormat('l, d F Y') }}
                         </span>
+
+                        <button
+                            type="button"
+                            class="app-theme-toggle"
+                            x-data
+                            x-bind:aria-pressed="document.documentElement.classList.contains('dark')"
+                            @click="document.documentElement.classList.toggle('dark'); localStorage.setItem('worklog-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light')"
+                            aria-label="Ganti tema terang atau gelap"
+                        >
+                            <span class="app-theme-toggle-icon" aria-hidden="true">
+                                <svg class="app-theme-icon app-theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" /></svg>
+                                <svg class="app-theme-icon app-theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.5" /><path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></svg>
+                            </span>
+                            <span class="hidden sm:inline">Tema</span>
+                            <span class="app-theme-toggle-status" aria-hidden="true"><span class="app-theme-status-light">Terang</span><span class="app-theme-status-dark">Gelap</span></span>
+                        </button>
 
                         <div x-data="{ open: false }" class="relative">
                             <button

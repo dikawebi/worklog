@@ -39,7 +39,12 @@
             </div>
 
             <div class="bp-login-side hidden lg:block">
-                <div class="bp-login-photo"></div>
+                <div
+                    class="bp-login-photo"
+                    role="img"
+                    aria-label="Operasi PT Borneo Prima"
+                    style="background-image: url('{{ asset('images/login-side.jpg') }}')"
+                ></div>
                 <div class="bp-login-veil"></div>
 
                 <div class="bp-login-side-inner">

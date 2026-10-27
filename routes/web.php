@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Controllers\AttachmentDownloadController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectShowController;
+use App\Http\Controllers\WorklogController;
+use App\Http\Controllers\WorklogShowController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -15,23 +19,21 @@ Route::get('/dashboard', DashboardController::class)
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::view('/worklogs', 'placeholder', [
-        'title' => 'Worklog',
-        'description' => 'Catat daftar pekerjaan harian tanpa durasi. Modul ini akan diisi pada sprint berikutnya.',
-        'icon' => 'worklog',
-    ])->name('worklogs.index');
+    Route::get('/attachments/{attachment}/download', AttachmentDownloadController::class)
+        ->name('attachments.download');
 
-    Route::view('/feed', 'placeholder', [
-        'title' => 'Aktivitas Tim',
-        'description' => 'Lihat pekerjaan harian yang dicatat seluruh anggota tim IT.',
-        'icon' => 'feed',
-    ])->name('feed');
+    Route::get('/worklogs/{date?}', WorklogController::class)
+        ->where('date', '\\d{4}-\\d{2}-\\d{2}')
+        ->name('worklogs.index');
 
-    Route::view('/projects', 'placeholder', [
-        'title' => 'Projects',
-        'description' => 'Kelola project, milestone, anggota, dan progres pekerjaan jangka panjang.',
-        'icon' => 'projects',
-    ])->name('projects.index');
+    Route::view('/feed', 'feed.index')->name('feed');
+
+    Route::get('/worklogs/report/{report}', WorklogShowController::class)
+        ->name('worklogs.show');
+
+    Route::view('/projects', 'projects.index')->name('projects.index');
+
+    Route::get('/projects/{project}', ProjectShowController::class)->name('projects.show');
 
     Route::view('/tasks', 'placeholder', [
         'title' => 'Tugas',

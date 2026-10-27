@@ -1,0 +1,78 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Category;
+use App\Models\DailyReport;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\TestCase;
+
+class WorklogTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_authenticated_user_can_view_today_worklog(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('worklogs.index'));
+
+        $response->assertOk()
+            ->assertSee('Catat pekerjaan harian')
+            ->assertSee('Simpan Worklog');
+    }
+
+    public function test_user_can_save_a_worklog_with_a_default_category(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::query()->create([
+            'name' => 'Umum',
+            'color' => '#64748B',
+            'is_active' => true,
+            'sort_order' => 1,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test('worklog.today', ['date' => today()->format('Y-m-d')])
+            ->set('entries.0.description', 'Menyiapkan backup server staging.')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertSet('successMessage', 'Worklog berhasil disimpan.');
+
+        $this->assertTrue(DailyReport::query()
+            ->where('user_id', $user->id)
+            ->whereDate('report_date', today())
+            ->exists());
+        $this->assertDatabaseHas('work_log_entries', [
+            'category_id' => $category->id,
+            'description' => 'Menyiapkan backup server staging.',
+        ]);
+    }
+
+    public function test_worklog_requires_a_description(): void
+    {
+        $user = User::factory()->create();
+
+        Livewire::actingAs($user)
+            ->test('worklog.today', ['date' => today()->format('Y-m-d')])
+            ->call('save')
+            ->assertHasErrors(['entries.0.description']);
+
+        $this->assertDatabaseCount('daily_reports', 0);
+    }
+
+    public function test_future_worklog_is_rejected(): void
+    {
+        $user = User::factory()->create();
+
+        Livewire::actingAs($user)
+            ->test('worklog.today', ['date' => today()->addDay()->format('Y-m-d')])
+            ->set('entries.0.description', 'Pekerjaan masa depan')
+            ->call('save')
+            ->assertHasErrors(['date']);
+
+        $this->assertDatabaseCount('daily_reports', 0);
+    }
+}
