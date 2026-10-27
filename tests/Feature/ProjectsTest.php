@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Enums\MilestoneStatus;
 use App\Enums\ProjectStatus;
+use App\Models\Milestone;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -60,5 +62,33 @@ class ProjectsTest extends TestCase
             ->get(route('projects.show', $project))
             ->assertOk()
             ->assertSee('Support Internal');
+    }
+
+    public function test_milestone_is_overdue_when_past_due_date_and_not_completed(): void
+    {
+        $owner = User::factory()->manager()->create();
+        $project = Project::query()->create([
+            'code' => 'PRJ-003',
+            'name' => 'Jaringan Kantor',
+            'status' => ProjectStatus::Active,
+            'owner_id' => $owner->id,
+        ]);
+        $overdue = Milestone::query()->create([
+            'project_id' => $project->id,
+            'title' => 'Milestone terlambat',
+            'status' => MilestoneStatus::Pending,
+            'due_date' => today()->subDay(),
+            'sort_order' => 0,
+        ]);
+        Milestone::query()->create([
+            'project_id' => $project->id,
+            'title' => 'Milestone selesai',
+            'status' => MilestoneStatus::Completed,
+            'due_date' => today()->subDay(),
+            'sort_order' => 1,
+        ]);
+
+        $this->assertTrue(Milestone::query()->overdue()->whereKey($overdue->id)->exists());
+        $this->assertSame(1, Milestone::query()->overdue()->count());
     }
 }

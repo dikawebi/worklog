@@ -35,11 +35,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/projects/{project}', ProjectShowController::class)->name('projects.show');
 
-    Route::view('/tasks', 'placeholder', [
-        'title' => 'Tugas',
-        'description' => 'Lihat dan kelola tugas yang sedang dikerjakan tim.',
-        'icon' => 'tasks',
-    ])->name('tasks.index');
+    Route::view('/tasks', 'tasks.index')->name('tasks.index');
 
     Route::view('/reports', 'placeholder', [
         'title' => 'Laporan',

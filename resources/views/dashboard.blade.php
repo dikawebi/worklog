@@ -108,9 +108,12 @@
             </section>
 
             <section class="ui-card p-5 sm:p-6">
-                <div class="mb-5">
-                    <p class="text-xs font-bold uppercase tracking-[0.14em] text-brand">Prioritas</p>
-                    <h2 class="mt-1 text-lg font-bold text-slate-900">Tugas saya</h2>
+                <div class="mb-5 flex items-start justify-between gap-3">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-[0.14em] text-brand">Prioritas</p>
+                        <h2 class="mt-1 text-lg font-bold text-slate-900">Tugas saya</h2>
+                    </div>
+                    <a href="{{ route('tasks.index') }}" class="text-xs font-bold text-brand hover:text-brand-hover">Lihat semua</a>
                 </div>
 
                 <div class="space-y-3">

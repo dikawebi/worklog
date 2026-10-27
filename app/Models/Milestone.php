@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\MilestoneStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -33,5 +34,11 @@ class Milestone extends Model
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function scopeOverdue(Builder $query): Builder
+    {
+        return $query->whereDate('due_date', '<', today())
+            ->where('status', '!=', MilestoneStatus::Completed->value);
     }
 }
