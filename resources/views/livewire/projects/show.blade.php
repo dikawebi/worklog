@@ -77,4 +77,46 @@
             @endcan
         </section>
     </div>
+
+    <section class="ui-card p-5 sm:p-6">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p class="app-eyebrow">Execution</p>
+                <h2 class="mt-1 text-lg font-extrabold text-slate-900">Task project</h2>
+                <p class="mt-1 text-sm text-slate-500">Pekerjaan yang sedang berjalan dan deadline terdekat.</p>
+            </div>
+            <a href="{{ route('tasks.index') }}" class="ui-button-secondary">Buka task board</a>
+        </div>
+
+        <div class="mt-5 grid gap-3 md:grid-cols-2">
+            @forelse ($projectTasks as $task)
+                @php
+                    $statusTone = match ($task->status->value) {
+                        'done' => 'bg-emerald-100 text-emerald-700',
+                        'blocked' => 'bg-rose-100 text-rose-700',
+                        'in_progress' => 'bg-blue-100 text-blue-700',
+                        default => 'bg-slate-100 text-slate-600',
+                    };
+                    $isOverdue = $task->due_date && $task->due_date->isPast() && $task->status->value !== 'done';
+                @endphp
+                <a href="{{ route('tasks.show', $task) }}" class="dashboard-project-row group">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <h3 class="truncate text-sm font-bold text-slate-900 group-hover:text-brand">{{ $task->title }}</h3>
+                            <p class="mt-1 truncate text-xs text-slate-500">{{ $task->assignee?->name ?? 'Belum ditugaskan' }} @if ($task->milestone) · {{ $task->milestone->title }} @endif</p>
+                        </div>
+                        <span class="ui-badge shrink-0 {{ $statusTone }}">{{ $task->status->label() }}</span>
+                    </div>
+                    <p class="mt-3 text-xs font-semibold {{ $isOverdue ? 'text-rose-600' : 'text-slate-500' }}">
+                        {{ $task->due_date ? ($isOverdue ? 'Terlambat · ' : 'Deadline ') . $task->due_date->translatedFormat('d M Y') : 'Tanpa deadline' }}
+                    </p>
+                </a>
+            @empty
+                <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-center md:col-span-2">
+                    <p class="text-sm font-bold text-slate-700">Belum ada task di project ini</p>
+                    <p class="mt-1 text-xs text-slate-500">Task yang dibuat untuk project ini akan tampil di sini.</p>
+                </div>
+            @endforelse
+        </div>
+    </section>
 </div>

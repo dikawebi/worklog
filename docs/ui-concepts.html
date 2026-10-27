@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IT Worklog — UI Concept Preview</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --surface: #fff;
+            --surface-2: #f8fafc;
+            --ink: #172033;
+            --muted: #718096;
+            --line: #e6ebf2;
+            --blue: #2563eb;
+            --blue-soft: #eaf1ff;
+            --navy: #111a2e;
+            --green: #159570;
+            --amber: #d97706;
+            --red: #e05252;
+            --shadow: 0 14px 40px rgba(26, 42, 73, .08);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--bg); color: var(--ink); }
+        button, input, textarea { font: inherit; }
+        button { cursor: pointer; }
+
+        .preview-bar {
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+            padding: 16px clamp(16px, 4vw, 56px); background: #fff; border-bottom: 1px solid var(--line);
+        }
+        .preview-bar h1 { margin: 0; font-size: 16px; letter-spacing: -.02em; }
+        .preview-bar p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+        .switcher { display: flex; flex-wrap: wrap; gap: 6px; }
+        .switcher button { border: 1px solid var(--line); border-radius: 9px; padding: 8px 11px; background: #fff; color: var(--muted); font-size: 12px; font-weight: 700; }
+        .switcher button.active { border-color: var(--blue); background: var(--blue); color: #fff; }
+
+        .app { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: calc(100vh - 73px); }
+        .sidebar { padding: 24px 16px; background: var(--navy); color: #fff; }
+        .brand { display: flex; align-items: center; gap: 10px; padding: 0 10px 30px; font-weight: 800; letter-spacing: -.03em; }
+        .brand-mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 10px; background: linear-gradient(135deg, #54a5ff, #2e5eea); font-size: 14px; }
+        .nav-label { margin: 18px 10px 8px; color: #74819b; font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+        .nav-item { display: flex; align-items: center; gap: 11px; padding: 11px 10px; border-radius: 10px; color: #aab5ca; font-size: 13px; font-weight: 650; }
+        .nav-item.active { background: #2c65e8; color: #fff; box-shadow: 0 8px 18px rgba(37, 99, 235, .24); }
+        .nav-item span:first-child { width: 18px; text-align: center; opacity: .9; }
+        .main { min-width: 0; }
+        .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 70px; padding: 0 clamp(18px, 4vw, 48px); background: var(--surface); border-bottom: 1px solid var(--line); }
+        .crumb { color: var(--muted); font-size: 12px; }
+        .top-actions { display: flex; align-items: center; gap: 12px; }
+        .search { width: min(250px, 28vw); border: 1px solid var(--line); border-radius: 9px; padding: 9px 12px; background: var(--surface-2); color: var(--ink); font-size: 12px; outline: none; }
+        .avatar { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #dbeafe; color: #1d4ed8; font-size: 11px; font-weight: 800; }
+        .content { max-width: 1420px; margin: 0 auto; padding: clamp(22px, 4vw, 42px); }
+        .screen { display: none; }
+        .screen.active { display: block; animation: appear .2s ease-out; }
+        @keyframes appear { from { opacity: .3; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+        .eyebrow { margin: 0 0 7px; color: var(--blue); font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+        .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 26px; }
+        h2, h3, p { margin-top: 0; }
+        h2 { margin-bottom: 7px; font-size: clamp(24px, 3vw, 32px); letter-spacing: -.05em; }
+        h3 { margin-bottom: 5px; font-size: 15px; letter-spacing: -.02em; }
+        .subtitle { margin: 0; color: var(--muted); font-size: 13px; }
+        .button { border: 0; border-radius: 9px; padding: 11px 15px; background: var(--blue); color: #fff; font-size: 12px; font-weight: 800; box-shadow: 0 7px 15px rgba(37, 99, 235, .18); }
+        .button.secondary { border: 1px solid var(--line); background: #fff; color: var(--ink); box-shadow: none; }
+        .button.ghost { background: var(--blue-soft); color: var(--blue); box-shadow: none; }
+        .grid { display: grid; gap: 16px; }
+        .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .two-col { grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr); }
+        .card { border: 1px solid var(--line); border-radius: 15px; background: var(--surface); box-shadow: var(--shadow); }
+        .card-pad { padding: 19px; }
+        .stat { position: relative; overflow: hidden; padding: 18px; }
+        .stat:after { position: absolute; right: -24px; bottom: -40px; width: 100px; height: 100px; border-radius: 50%; background: var(--blue-soft); content: ""; }
+        .stat-label { color: var(--muted); font-size: 11px; font-weight: 700; }
+        .stat-value { margin: 9px 0 3px; font-size: 27px; font-weight: 800; letter-spacing: -.06em; }
+        .stat-meta { color: var(--green); font-size: 11px; font-weight: 700; }
+        .section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+        .section-head h3 { margin: 0; }
+        .link { color: var(--blue); font-size: 11px; font-weight: 800; text-decoration: none; }
+        .hero { margin-bottom: 16px; padding: 25px; border-radius: 17px; background: linear-gradient(115deg, #1d4ed8, #4779ed); color: #fff; box-shadow: 0 17px 35px rgba(37, 99, 235, .18); }
+        .hero h2 { max-width: 650px; margin-bottom: 8px; font-size: 25px; }
+        .hero p { max-width: 620px; margin: 0; color: #dbeafe; font-size: 13px; line-height: 1.7; }
+        .progress-row { display: flex; align-items: center; gap: 11px; margin: 14px 0; }
+        .progress { height: 7px; flex: 1; overflow: hidden; border-radius: 99px; background: #e9eef6; }
+        .progress i { display: block; height: 100%; border-radius: inherit; background: var(--blue); }
+        .progress-row small { color: var(--muted); font-size: 11px; font-weight: 700; }
+        .list { display: grid; gap: 12px; }
+        .list-item { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+        .list-item:last-child { border-bottom: 0; padding-bottom: 0; }
+        .list-item:first-child { padding-top: 0; }
+        .list-copy { min-width: 0; flex: 1; }
+        .list-copy strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+        .list-copy small { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+        .badge { display: inline-flex; align-items: center; border-radius: 99px; padding: 5px 8px; background: var(--blue-soft); color: var(--blue); font-size: 10px; font-weight: 800; white-space: nowrap; }
+        .badge.green { background: #e8f8f1; color: var(--green); }
+        .badge.amber { background: #fff4df; color: var(--amber); }
+        .badge.red { background: #ffeded; color: var(--red); }
+        .bar-chart { display: flex; align-items: end; justify-content: space-between; height: 150px; gap: 10px; padding-top: 12px; }
+        .bar-col { display: flex; height: 100%; flex: 1; flex-direction: column; justify-content: end; align-items: center; gap: 7px; }
+        .bar { width: min(30px, 65%); border-radius: 7px 7px 3px 3px; background: linear-gradient(#6da2ff, #2563eb); }
+        .bar-col small { color: var(--muted); font-size: 10px; }
+
+        .worklog-layout { grid-template-columns: minmax(0, 1fr) 285px; align-items: start; }
+        .capture { padding: 22px; }
+        .capture-header { display: flex; align-items: start; justify-content: space-between; gap: 16px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+        .date-chip { border: 1px solid #cfe0ff; border-radius: 10px; padding: 8px 11px; background: var(--blue-soft); color: var(--blue); font-size: 11px; font-weight: 800; }
+        .capture-input { width: 100%; border: 1px solid #d9e1ec; border-radius: 10px; padding: 13px; color: var(--ink); outline: none; resize: vertical; }
+        .capture-input:focus { border-color: #78a4ff; box-shadow: 0 0 0 3px #e5edff; }
+        .suggestions { display: flex; flex-wrap: wrap; gap: 7px; margin: 11px 0 21px; }
+        .suggestion { border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; background: #fff; color: var(--muted); font-size: 10px; font-weight: 700; }
+        .details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+        .field label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 10px; font-weight: 800; }
+        .field select { width: 100%; border: 1px solid var(--line); border-radius: 9px; padding: 10px; background: #fff; color: var(--ink); font-size: 11px; }
+        .capture-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 20px; }
+        .muted-note { color: var(--muted); font-size: 11px; }
+        .side-title { margin-bottom: 15px; font-size: 13px; font-weight: 800; }
+        .mini-day { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+        .mini-day b { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 8px; background: var(--surface-2); font-size: 11px; }
+        .mini-day.active b { background: var(--blue); color: #fff; }
+        .mini-day span { flex: 1; color: var(--muted); font-size: 11px; }
+
+        .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+        .filters { display: flex; flex-wrap: wrap; gap: 7px; }
+        .filter { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #fff; color: var(--muted); font-size: 11px; font-weight: 700; }
+        .board { display: grid; grid-template-columns: repeat(4, minmax(190px, 1fr)); gap: 13px; overflow-x: auto; }
+        .column { min-height: 360px; border: 1px solid var(--line); border-radius: 13px; padding: 11px; background: #f8fafc; }
+        .column-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 11px; }
+        .column-head strong { font-size: 12px; }
+        .count { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px; background: #fff; color: var(--muted); font-size: 10px; font-weight: 800; }
+        .task { margin-bottom: 9px; padding: 13px; border: 1px solid var(--line); border-radius: 11px; background: #fff; box-shadow: 0 5px 13px rgba(26, 42, 73, .04); }
+        .task:last-child { margin-bottom: 0; }
+        .task-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; }
+        .task-code { color: var(--blue); font-size: 9px; font-weight: 800; }
+        .task h3 { font-size: 12px; line-height: 1.45; }
+        .task-meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 13px; color: var(--muted); font-size: 10px; }
+        .mini-avatar { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #ede9fe; color: #6d28d9; font-size: 9px; font-weight: 800; }
+
+        @media (max-width: 900px) {
+            .app { grid-template-columns: 70px minmax(0, 1fr); }
+            .sidebar { padding-inline: 10px; }
+            .brand { justify-content: center; padding-inline: 0; }
+            .brand-label, .nav-label, .nav-item em { display: none; }
+            .nav-item { justify-content: center; padding-inline: 8px; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .two-col, .worklog-layout { grid-template-columns: 1fr; }
+            .board { grid-template-columns: repeat(4, 225px); }
+        }
+        @media (max-width: 620px) {
+            .preview-bar { align-items: start; flex-direction: column; }
+            .app { display: block; }
+            .sidebar { display: none; }
+            .topbar { height: 58px; }
+            .search { display: none; }
+            .content { padding: 20px 14px 35px; }
+            .page-heading { align-items: start; flex-direction: column; }
+            .stats { grid-template-columns: 1fr 1fr; gap: 9px; }
+            .stat { padding: 13px; }
+            .stat-value { font-size: 22px; }
+            .details { grid-template-columns: 1fr; }
+            .capture-footer { align-items: stretch; flex-direction: column; }
+            .capture-footer .button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header class="preview-bar">
+        <div>
+            <h1>IT Worklog · UI Concept Preview</h1>
+            <p>Visualisasi arah baru: role-based dashboard, quick capture, dan task board.</p>
+        </div>
+        <div class="switcher" aria-label="Pilih layar preview">
+            <button class="active" data-screen="member">Member dashboard</button>
+            <button data-screen="manager">Manager dashboard</button>
+            <button data-screen="worklog">Quick worklog</button>
+            <button data-screen="tasks">Task board</button>
+        </div>
+    </header>
+
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand"><span class="brand-mark">BP</span><span class="brand-label">IT Worklog</span></div>
+            <div class="nav-label">Workspace</div>
+            <div class="nav-item active"><span>⌂</span><em>Beranda</em></div>
+            <div class="nav-item"><span>✓</span><em>Tugas saya</em></div>
+            <div class="nav-item"><span>↗</span><em>Worklog</em></div>
+            <div class="nav-item"><span>▦</span><em>Project</em></div>
+            <div class="nav-label">Insight</div>
+            <div class="nav-item"><span>◷</span><em>Aktivitas tim</em></div>
+            <div class="nav-item"><span>⌁</span><em>Laporan</em></div>
+            <div class="nav-item"><span>⚙</span><em>Pengaturan</em></div>
+        </aside>
+
+        <main class="main">
+            <div class="topbar">
+                <span class="crumb">Workspace / <strong>IT Worklog</strong></span>
+                <div class="top-actions"><input class="search" placeholder="Cari task, project, anggota..." aria-label="Cari"><span>◔</span><span class="avatar">AK</span></div>
+            </div>
+
+            <div class="content">
+                <section class="screen active" id="member">
+                    <div class="page-heading"><div><p class="eyebrow">Ruang kerja pribadi</p><h2>Selamat pagi, Andika.</h2><p class="subtitle">Berikut hal yang perlu kamu selesaikan hari ini.</p></div><button class="button">+ Catat pekerjaan</button></div>
+                    <div class="hero"><p class="eyebrow" style="color:#bfdbfe">Status hari ini</p><h2>Jangan lupa isi worklog sebelum pukul 17.00</h2><p>Kamu sudah menyelesaikan 3 task minggu ini. Satu catatan singkat hari ini akan membantu tim tetap sinkron.</p></div>
+                    <div class="grid stats">
+                        <div class="card stat"><span class="stat-label">Task terbuka</span><strong class="stat-value">8</strong><span class="stat-meta">2 deadline minggu ini</span></div>
+                        <div class="card stat"><span class="stat-label">Worklog minggu ini</span><strong class="stat-value">12</strong><span class="stat-meta">↑ 18% dari minggu lalu</span></div>
+                        <div class="card stat"><span class="stat-label">Hari terisi</span><strong class="stat-value">4/6</strong><span class="stat-meta">2 hari tersisa</span></div>
+                        <div class="card stat"><span class="stat-label">Project aktif</span><strong class="stat-value">3</strong><span class="stat-meta">Semua berjalan</span></div>
+                    </div>
+                    <div class="grid two-col" style="margin-top:16px">
+                        <div class="card card-pad"><div class="section-head"><h3>Task prioritas kamu</h3><a class="link" href="#">Lihat semua →</a></div><div class="list"><div class="list-item"><span class="badge red">Urgent</span><div class="list-copy"><strong>UAT modul laporan inventory</strong><small>ERP Inventory · jatuh tempo 3 hari lalu</small></div><span class="badge amber">Todo</span></div><div class="list-item"><span class="badge">High</span><div class="list-copy"><strong>Integrasi stok dengan portal supplier</strong><small>ERP Inventory · jatuh tempo 5 hari lagi</small></div><span class="badge">Progress</span></div><div class="list-item"><span class="badge green">Done</span><div class="list-copy"><strong>Dokumentasi API inventory</strong><small>ERP Inventory · selesai kemarin</small></div></div></div></div>
+                        <div class="card card-pad"><div class="section-head"><h3>Aktivitas terbaru</h3><a class="link" href="#">Feed →</a></div><div class="list"><div class="list-item"><span class="avatar">RS</span><div class="list-copy"><strong>Rina memberi komentar</strong><small>2 jam lalu · Task UAT inventory</small></div></div><div class="list-item"><span class="avatar" style="background:#dcfce7;color:#15803d">FM</span><div class="list-copy"><strong>Fajar menyelesaikan task</strong><small>Kemarin · Audit keamanan server</small></div></div><div class="list-item"><span class="avatar" style="background:#fef3c7;color:#b45309">BS</span><div class="list-copy"><strong>Budi menugaskan task baru</strong><small>Kemarin · Integrasi supplier</small></div></div></div></div>
+                    </div>
+                </section>
+
+                <section class="screen" id="manager">
+                    <div class="page-heading"><div><p class="eyebrow">Command center</p><h2>Selamat pagi, Budi.</h2><p class="subtitle">Ringkasan kesehatan tim dan project hari ini.</p></div><button class="button">+ Buat task</button></div>
+                    <div class="grid stats"><div class="card stat"><span class="stat-label">Worklog tim hari ini</span><strong class="stat-value">4/6</strong><span class="stat-meta">2 anggota belum isi</span></div><div class="card stat"><span class="stat-label">Task overdue</span><strong class="stat-value" style="color:var(--red)">3</strong><span class="stat-meta" style="color:var(--red)">Perlu perhatian</span></div><div class="card stat"><span class="stat-label">Project sehat</span><strong class="stat-value">3/4</strong><span class="stat-meta">1 project on hold</span></div><div class="card stat"><span class="stat-label">Aktivitas minggu ini</span><strong class="stat-value">42</strong><span class="stat-meta">↑ 12% dari minggu lalu</span></div></div>
+                    <div class="grid two-col" style="margin-top:16px"><div class="card card-pad"><div class="section-head"><h3>Aktivitas worklog minggu ini</h3><span class="badge">Senin — Sabtu</span></div><div class="bar-chart"><div class="bar-col"><div class="bar" style="height:72%"></div><small>Sen</small></div><div class="bar-col"><div class="bar" style="height:88%"></div><small>Sel</small></div><div class="bar-col"><div class="bar" style="height:57%"></div><small>Rab</small></div><div class="bar-col"><div class="bar" style="height:94%"></div><small>Kam</small></div><div class="bar-col"><div class="bar" style="height:76%"></div><small>Jum</small></div><div class="bar-col"><div class="bar" style="height:42%"></div><small>Sab</small></div></div></div><div class="card card-pad"><div class="section-head"><h3>Belum mengisi hari ini</h3><span class="badge amber">2 orang</span></div><div class="list"><div class="list-item"><span class="avatar">FM</span><div class="list-copy"><strong>Fajar Nugroho</strong><small>Infrastructure Engineer</small></div><button class="button ghost">Ingatkan</button></div><div class="list-item"><span class="avatar">DM</span><div class="list-copy"><strong>Dimas Pratama</strong><small>Application Support</small></div><button class="button ghost">Ingatkan</button></div></div></div></div>
+                    <div class="card card-pad" style="margin-top:16px"><div class="section-head"><h3>Kesehatan project</h3><a class="link" href="#">Buka laporan →</a></div><div class="list"><div class="list-item"><div class="list-copy"><strong>Implementasi ERP Modul Inventory</strong><small>18 dari 24 task selesai</small></div><span style="width:130px"><div class="progress"><i style="width:75%"></i></div></span><span class="badge green">On track</span></div><div class="list-item"><div class="list-copy"><strong>Migrasi Server ke Cloud</strong><small>8 dari 15 task selesai</small></div><span style="width:130px"><div class="progress"><i style="width:53%;background:var(--amber)"></i></div></span><span class="badge amber">At risk</span></div></div></div>
+                </section>
+
+                <section class="screen" id="worklog">
+                    <div class="page-heading"><div><p class="eyebrow">Quick capture</p><h2>Catat pekerjaan.</h2><p class="subtitle">Satu catatan singkat sudah cukup. Detail bisa ditambahkan bila perlu.</p></div><span class="date-chip">Selasa, 27 Okt 2026</span></div>
+                    <div class="grid worklog-layout"><div class="card capture"><div class="capture-header"><div><h3>Apa yang kamu kerjakan hari ini?</h3><p class="subtitle">Tulis dengan bahasa sederhana. Tidak perlu mengisi durasi.</p></div><span class="badge green">Draft tersimpan</span></div><div style="margin-top:21px"><textarea class="capture-input" rows="4" placeholder="Contoh: Menyelesaikan konfigurasi backup server staging..."></textarea><div class="suggestions"><button class="suggestion">Gunakan pekerjaan terakhir</button><button class="suggestion">+ Tambah dari task saya</button><button class="suggestion">📎 Lampirkan file</button></div><div class="details"><div class="field"><label>Project</label><select><option>Pilih project (opsional)</option><option>ERP Inventory</option></select></div><div class="field"><label>Task</label><select><option>Pilih task (opsional)</option><option>UAT modul laporan</option></select></div><div class="field"><label>Kategori</label><select><option>Pilih kategori</option><option>Development</option></select></div></div><div class="capture-footer"><span class="muted-note">Kamu dapat menambahkan pekerjaan lain setelah menyimpan.</span><button class="button">Simpan worklog</button></div></div></div><aside class="card card-pad"><p class="side-title">Ringkasan minggu ini</p><div class="mini-day active"><b>27</b><span>Hari ini</span><span class="badge green">1 entri</span></div><div class="mini-day"><b>26</b><span>Senin</span><span class="badge green">2 entri</span></div><div class="mini-day"><b>25</b><span>Minggu</span><span class="badge">Libur</span></div><div class="mini-day"><b>24</b><span>Sabtu</span><span class="badge green">2 entri</span></div><div class="mini-day"><b>23</b><span>Jumat</span><span class="badge green">3 entri</span></div><button class="button secondary" style="width:100%;margin-top:17px">Lihat riwayat</button></aside></div>
+                </section>
+
+                <section class="screen" id="tasks">
+                    <div class="page-heading"><div><p class="eyebrow">Execution</p><h2>Task board.</h2><p class="subtitle">Pindahkan task, lihat prioritas, dan fokus pada pekerjaan yang sedang berjalan.</p></div><button class="button">+ Task baru</button></div>
+                    <div class="toolbar"><div class="filters"><button class="filter">Semua project⌄</button><button class="filter">Semua assignee⌄</button><button class="filter">Prioritas⌄</button><button class="filter">⚑ Overdue saja</button></div><span class="muted-note">24 task · diperbarui barusan</span></div>
+                    <div class="board"><div class="column"><div class="column-head"><strong>Belum dikerjakan</strong><span class="count">5</span></div><div class="task"><div class="task-top"><span class="task-code">PRJ-2026-001</span><span class="badge red">Urgent</span></div><h3>UAT modul laporan inventory</h3><div class="task-meta"><span>Jatuh tempo 3 hari lalu</span><span class="mini-avatar">RW</span></div></div><div class="task"><div class="task-top"><span class="task-code">PRJ-2026-002</span><span class="badge">High</span></div><h3>Konfigurasi backup otomatis</h3><div class="task-meta"><span>7 Nov 2026</span><span class="mini-avatar">DP</span></div></div></div><div class="column"><div class="column-head"><strong>Sedang berjalan</strong><span class="count">3</span></div><div class="task"><div class="task-top"><span class="task-code">PRJ-2026-001</span><span class="badge">High</span></div><h3>Integrasi stok dengan portal supplier</h3><div class="task-meta"><span>1 hari terakhir</span><span class="mini-avatar">AK</span></div></div><div class="task"><div class="task-top"><span class="task-code">PRJ-2026-002</span><span class="badge red">Urgent</span></div><h3>Migrasi database ke cloud</h3><div class="task-meta"><span>3 Nov 2026</span><span class="mini-avatar">FN</span></div></div></div><div class="column"><div class="column-head"><strong>Terhambat</strong><span class="count">2</span></div><div class="task"><div class="task-top"><span class="task-code">PRJ-2026-003</span><span class="badge amber">High</span></div><h3>Konfigurasi VPN site-to-site</h3><div class="task-meta"><span>Menunggu akses vendor</span><span class="mini-avatar">SR</span></div></div></div><div class="column"><div class="column-head"><strong>Selesai</strong><span class="count">14</span></div><div class="task"><div class="task-top"><span class="task-code">PRJ-2026-001</span><span class="badge green">Done</span></div><h3>Dokumentasi API inventory</h3><div class="task-meta"><span>Selesai kemarin</span><span class="mini-avatar">AK</span></div></div><div class="task"><div class="task-top"><span class="task-code">PRJ-2026-002</span><span class="badge green">Done</span></div><h3>Audit keamanan server lama</h3><div class="task-meta"><span>Selesai 2 hari lalu</span><span class="mini-avatar">FN</span></div></div></div></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const buttons = document.querySelectorAll('[data-screen]');
+        const screens = document.querySelectorAll('.screen');
+        buttons.forEach((button) => button.addEventListener('click', () => {
+            buttons.forEach((item) => item.classList.toggle('active', item === button));
+            screens.forEach((screen) => screen.classList.toggle('active', screen.id === button.dataset.screen));
+        }));
+    </script>
+</body>
+</html>

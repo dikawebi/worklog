@@ -96,7 +96,7 @@ class Comments extends Component
 
     private function notifyMentions(Comment $comment, Task|DailyReport $commentable): void
     {
-        preg_match_all('/(?<![\w.])@([A-Za-z0-9._-]+)/', $comment->body, $matches);
+        preg_match_all('/(?<![\w.@])@([A-Za-z0-9._-]+)/', $comment->body, $matches);
 
         $handles = collect($matches[1] ?? [])->map(fn (string $handle): string => Str::lower($handle))->unique();
 
@@ -106,12 +106,30 @@ class Comments extends Component
 
         $users = User::query()
             ->where('is_active', true)
-            ->where(function ($query) use ($handles): void {
+            ->get()
+            ->filter(function (User $user) use ($handles): bool {
+                $email = Str::lower($user->email);
+                $local = Str::before($email, '@');
+                $name = Str::lower($user->name);
+
+                $nameWords = preg_split('/\s+/', $name) ?: [];
+
                 foreach ($handles as $handle) {
-                    $query->orWhere('email', 'like', $handle.'@%');
+                    if ($local === $handle) {
+                        return true;
+                    }
+
+                    $dotCount = substr_count($handle, '.') + 1;
+                    $prefix = implode(' ', array_slice($nameWords, 0, $dotCount));
+
+                    if (strtolower($prefix) === $handle) {
+                        return true;
+                    }
                 }
+
+                return false;
             })
-            ->get();
+            ->values();
 
         $url = $commentable instanceof Task
             ? route('tasks.show', $commentable)

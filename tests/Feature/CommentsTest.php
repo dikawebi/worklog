@@ -50,6 +50,29 @@ class CommentsTest extends TestCase
         $this->assertSame(0, $assignee->notifications()->count());
     }
 
+    public function test_user_can_mention_by_full_email_handle_and_name(): void
+    {
+        $manager = User::factory()->manager()->create();
+        $assignee = User::factory()->create();
+        $mentioned = User::factory()->create([
+            'name' => 'Rina Wulandari',
+            'email' => 'rina.wulandari@borneoprima.com',
+        ]);
+        $task = $this->task($manager, $assignee);
+
+        Livewire::actingAs($manager)
+            ->test('comments', [
+                'commentableType' => Task::class,
+                'commentableId' => $task->id,
+            ])
+            ->set('body', '@rina.wulandari dan @rina perlu review skenario UAT.')
+            ->call('addComment')
+            ->assertHasNoErrors();
+
+        $this->assertSame(1, $mentioned->notifications()->count());
+        $this->assertSame(MentionedInComment::class, $mentioned->notifications()->first()->type);
+    }
+
     public function test_member_cannot_comment_on_a_task_they_cannot_view(): void
     {
         $manager = User::factory()->manager()->create();

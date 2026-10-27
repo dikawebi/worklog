@@ -173,6 +173,14 @@ class Show extends Component
             'members:id,name,position',
             'milestones' => fn ($query) => $query->withCount('tasks')->orderBy('sort_order')->orderBy('due_date'),
         ]);
+
+        $projectTasks = $this->project->tasks()
+            ->with(['assignee:id,name', 'milestone:id,title'])
+            ->orderByRaw("CASE status WHEN 'in_progress' THEN 1 WHEN 'blocked' THEN 2 WHEN 'todo' THEN 3 WHEN 'done' THEN 4 ELSE 5 END")
+            ->orderByRaw('due_date IS NULL')
+            ->orderBy('due_date')
+            ->limit(8)
+            ->get();
         $this->project->loadCount([
             'tasks',
             'milestones',
@@ -181,6 +189,7 @@ class Show extends Component
         ]);
 
         return view('livewire.projects.show', [
+            'projectTasks' => $projectTasks,
             'users' => User::query()->where('is_active', true)->orderBy('name')->get(['id', 'name', 'position']),
             'statuses' => ProjectStatus::cases(),
             'milestoneStatuses' => MilestoneStatus::cases(),

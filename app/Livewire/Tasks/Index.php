@@ -22,7 +22,7 @@ class Index extends Component
 {
     use WithPagination;
 
-    public string $viewMode = 'list';
+    public string $viewMode = 'board';
 
     public string $search = '';
 

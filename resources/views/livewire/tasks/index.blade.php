@@ -1,4 +1,4 @@
-<div class="mx-auto max-w-7xl space-y-5">
+<div class="mx-auto max-w-7xl space-y-5" x-data="{ filtersOpen: false }">
     @if ($successMessage)
         <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800" role="status">{{ $successMessage }}</div>
     @endif
@@ -8,7 +8,7 @@
     @enderror
 
     @if ($showForm)
-        <section class="ui-card border-brand/30 p-5 sm:p-6">
+        <section class="ui-card border-brand/30 bg-gradient-to-br from-white to-blue-50/40 p-5 sm:p-6">
             <div class="flex items-start justify-between gap-4">
                 <div>
                     <p class="text-xs font-bold uppercase tracking-[0.14em] text-brand">{{ $editingId ? 'Edit task' : 'Task baru' }}</p>
@@ -89,93 +89,58 @@
         </section>
     @endif
 
-    <section class="ui-card p-4 sm:p-5">
-        <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
-            <div class="xl:col-span-2">
+    <section class="ui-toolbar">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div class="min-w-0 flex-1">
                 <label for="task-search" class="sr-only">Cari task</label>
                 <input id="task-search" type="search" wire:model.live.debounce.300ms="search" class="worklog-input" placeholder="Cari judul atau deskripsi...">
             </div>
-            <div>
-                <label for="task-status-filter" class="sr-only">Status</label>
-                <select id="task-status-filter" wire:model.live="statusFilter" class="worklog-input">
-                    <option value="">Semua status</option>
-                    @foreach ($statuses as $statusOption)
-                        <option value="{{ $statusOption->value }}">{{ $statusOption->label() }}</option>
-                    @endforeach
-                </select>
+            <button type="button" @click="filtersOpen = ! filtersOpen" class="ui-button-secondary shrink-0" :aria-expanded="filtersOpen">Filter</button>
+            <div class="inline-flex shrink-0 rounded-lg border border-slate-200 bg-white p-1">
+                <button type="button" wire:click="$set('viewMode', 'board')" class="rounded-md px-3 py-1.5 text-xs font-bold {{ $viewMode === 'board' ? 'bg-brand text-white' : 'text-slate-600 hover:bg-slate-50' }}">Board</button>
+                <button type="button" wire:click="$set('viewMode', 'list')" class="rounded-md px-3 py-1.5 text-xs font-bold {{ $viewMode === 'list' ? 'bg-brand text-white' : 'text-slate-600 hover:bg-slate-50' }}">Daftar</button>
             </div>
-            <div>
-                <label for="task-priority-filter" class="sr-only">Prioritas</label>
-                <select id="task-priority-filter" wire:model.live="priorityFilter" class="worklog-input">
-                    <option value="">Semua prioritas</option>
-                    @foreach ($priorities as $priorityOption)
-                        <option value="{{ $priorityOption->value }}">{{ $priorityOption->label() }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label for="task-project-filter" class="sr-only">Project</label>
-                <select id="task-project-filter" wire:model.live="projectFilter" class="worklog-input">
-                    <option value="">Semua project</option>
-                    @foreach ($projects as $project)
-                        <option value="{{ $project->id }}">{{ $project->code }}</option>
-                    @endforeach
-                </select>
-            </div>
-            @if (auth()->user()->isManager() || auth()->user()->isAdmin())
-                <div>
-                    <label for="task-assignee-filter" class="sr-only">Assignee</label>
-                    <select id="task-assignee-filter" wire:model.live="assigneeFilter" class="worklog-input">
-                        <option value="">Semua assignee</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            @else
-                <div class="flex items-center">
-                    <p class="text-xs font-semibold text-slate-500">Menampilkan task yang ditugaskan kepada Anda.</p>
-                </div>
+            @if ($canCreate)
+                <button type="button" wire:click="create" class="ui-button-primary shrink-0">+ Task</button>
             @endif
         </div>
 
-        <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-            <label class="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                <input type="checkbox" wire:model.live="overdueOnly" class="rounded border-slate-300 text-brand focus:ring-brand">
-                Hanya yang terlambat
-            </label>
-
-            <div class="flex items-center gap-2">
-                <div class="inline-flex rounded-lg border border-slate-200 bg-white p-1">
-                    <button type="button" wire:click="$set('viewMode', 'list')" class="rounded-md px-3 py-1.5 text-xs font-bold {{ $viewMode === 'list' ? 'bg-brand text-white' : 'text-slate-600 hover:bg-slate-50' }}">List</button>
-                    <button type="button" wire:click="$set('viewMode', 'board')" class="rounded-md px-3 py-1.5 text-xs font-bold {{ $viewMode === 'board' ? 'bg-brand text-white' : 'text-slate-600 hover:bg-slate-50' }}">Board</button>
-                </div>
-                @if ($canCreate)
-                    <button type="button" wire:click="create" class="ui-button-primary">+ Task</button>
-                @endif
-            </div>
+        <div x-show="filtersOpen" x-cloak class="ui-filter-drawer grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div><label for="task-status-filter" class="worklog-label">Status</label><select id="task-status-filter" wire:model.live="statusFilter" class="worklog-input"><option value="">Semua status</option>@foreach ($statuses as $statusOption)<option value="{{ $statusOption->value }}">{{ $statusOption->label() }}</option>@endforeach</select></div>
+            <div><label for="task-priority-filter" class="worklog-label">Prioritas</label><select id="task-priority-filter" wire:model.live="priorityFilter" class="worklog-input"><option value="">Semua prioritas</option>@foreach ($priorities as $priorityOption)<option value="{{ $priorityOption->value }}">{{ $priorityOption->label() }}</option>@endforeach</select></div>
+            <div><label for="task-project-filter" class="worklog-label">Project</label><select id="task-project-filter" wire:model.live="projectFilter" class="worklog-input"><option value="">Semua project</option>@foreach ($projects as $project)<option value="{{ $project->id }}">{{ $project->code }}</option>@endforeach</select></div>
+            @if (auth()->user()->isManager() || auth()->user()->isAdmin())
+                <div><label for="task-assignee-filter" class="worklog-label">Assignee</label><select id="task-assignee-filter" wire:model.live="assigneeFilter" class="worklog-input"><option value="">Semua assignee</option>@foreach ($users as $user)<option value="{{ $user->id }}">{{ $user->name }}</option>@endforeach</select></div>
+            @endif
+            <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 sm:col-span-2 lg:col-span-4"><input type="checkbox" wire:model.live="overdueOnly" class="rounded border-slate-300 text-brand focus:ring-brand"> Hanya yang terlambat</label>
         </div>
     </section>
 
     @if ($viewMode === 'board')
-        <div class="task-board -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 xl:mx-0 xl:grid xl:grid-cols-4 xl:overflow-visible xl:px-0" x-data="{ dragging: null }">
+        <div class="task-board-grid -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 xl:mx-0 xl:grid xl:grid-cols-4 xl:overflow-visible xl:px-0" x-data="{ dragging: null }">
             @foreach ($statuses as $statusOption)
                 @php($columnTasks = $boardTasks[$statusOption->value] ?? collect())
+                @php($columnTone = match ($statusOption->value) {
+                    'todo' => 'task-column-todo',
+                    'in_progress' => 'task-column-progress',
+                    'blocked' => 'task-column-blocked',
+                    default => 'task-column-done',
+                })
                 <section
-                    class="min-w-[280px] snap-start rounded-2xl border border-slate-200 bg-slate-50/80 p-3 transition xl:min-w-0"
+                    class="task-board-column {{ $columnTone }} min-w-[280px] snap-start rounded-2xl border p-3 transition xl:min-w-0"
                     @dragover.prevent="$el.classList.add('border-brand/50', 'bg-brand-soft/30')"
                     @dragleave="$el.classList.remove('border-brand/50', 'bg-brand-soft/30')"
                     @drop.prevent="$el.classList.remove('border-brand/50', 'bg-brand-soft/30'); if (dragging) { $wire.changeStatus(dragging, '{{ $statusOption->value }}'); dragging = null; }"
                 >
                     <div class="flex items-center justify-between gap-2 px-1 py-1">
-                        <h2 class="text-sm font-bold text-slate-800">{{ $statusOption->label() }}</h2>
-                        <span class="ui-badge bg-white text-slate-600 ring-1 ring-slate-200">{{ $columnTasks->count() }}</span>
+                        <div class="flex items-center gap-2"><span class="task-column-dot"></span><h2 class="text-sm font-extrabold text-slate-800">{{ $statusOption->label() }}</h2></div>
+                        <span class="ui-badge bg-white/80 text-slate-600 ring-1 ring-slate-200">{{ $columnTasks->count() }}</span>
                     </div>
 
                     <div class="mt-3 space-y-3">
                         @forelse ($columnTasks as $task)
                             <article
-                                class="ui-card cursor-grab p-4 active:cursor-grabbing"
+                                class="task-card ui-card cursor-grab p-4 active:cursor-grabbing"
                                 wire:key="board-task-{{ $task->id }}"
                                 draggable="true"
                                 @dragstart="dragging = {{ $task->id }}"
@@ -199,6 +164,7 @@
                                     @endif
                                 </div>
                                 <div class="mt-3 flex flex-wrap gap-1.5 border-t border-slate-100 pt-3">
+                                    <a href="{{ route('tasks.show', $task) }}" class="text-xs font-bold text-brand hover:text-brand-hover">Buka task →</a>
                                     @can('changeStatus', $task)
                                         @php($nextStatuses = match ($task->status->value) {
                                             'todo' => ['in_progress' => 'Mulai'],
@@ -209,12 +175,6 @@
                                         @foreach ($nextStatuses as $nextStatus => $label)
                                             <button type="button" wire:click="changeStatus({{ $task->id }}, '{{ $nextStatus }}')" class="ui-button-secondary !px-2.5 !py-1 text-[11px]">{{ $label }}</button>
                                         @endforeach
-                                    @endcan
-                                    @can('update', $task)
-                                        <button type="button" wire:click="edit({{ $task->id }})" class="ui-button-secondary !px-2.5 !py-1 text-[11px]">Edit</button>
-                                    @endcan
-                                    @can('delete', $task)
-                                        <button type="button" wire:click="delete({{ $task->id }})" wire:confirm="Hapus task ini?" class="ui-button-secondary !px-2.5 !py-1 text-[11px] text-rose-600">Hapus</button>
                                     @endcan
                                 </div>
                             </article>

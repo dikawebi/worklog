@@ -15,10 +15,8 @@
         </a>
     </div>
 
-    <div class="mt-4 flex-1 space-y-6">
-        <section>
-            <p class="app-sidebar-label mb-2 px-3">Ruang Kerja</p>
-            <ul class="space-y-1">
+    <div class="mt-4 flex-1">
+        <ul class="space-y-1">
                 <li>
                     <x-sidebar-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="dashboard">
                         Dasbor
@@ -34,12 +32,6 @@
                         Aktivitas Tim
                     </x-sidebar-link>
                 </li>
-            </ul>
-        </section>
-
-        <section>
-            <p class="app-sidebar-label mb-2 px-3">Kendali</p>
-            <ul class="space-y-1">
                 <li>
                     <x-sidebar-link :href="route('projects.index')" :active="request()->routeIs('projects.*')" icon="projects">
                         Projects
@@ -55,12 +47,11 @@
                         Laporan
                     </x-sidebar-link>
                 </li>
-            </ul>
-        </section>
+        </ul>
 
         @if ($user?->isAdmin())
-            <section>
-                <p class="app-sidebar-label mb-2 px-3">Administrasi</p>
+            <section class="mt-6 border-t border-slate-800 pt-5">
+                <p class="app-sidebar-label mb-2 px-3">Admin</p>
                 <ul class="space-y-1">
                     <li>
                         <x-sidebar-link :href="route('admin.users')" :active="request()->routeIs('admin.users')" icon="users">

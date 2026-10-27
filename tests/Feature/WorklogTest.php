@@ -41,7 +41,10 @@ class WorklogTest extends TestCase
             ->set('entries.0.description', 'Menyiapkan backup server staging.')
             ->call('save')
             ->assertHasNoErrors()
-            ->assertSet('successMessage', 'Worklog berhasil disimpan.');
+            ->assertSet('successMessage', 'Worklog berhasil disimpan.')
+            ->assertSet('entries.0.id', null)
+            ->assertSet('entries.0.description', '')
+            ->assertSet('notes', null);
 
         $this->assertTrue(DailyReport::query()
             ->where('user_id', $user->id)
@@ -113,5 +116,31 @@ class WorklogTest extends TestCase
             ->set('entries.0.project_id', (string) $firstProject->id)
             ->assertSee('Task di project A')
             ->assertDontSee('Task di project B');
+    }
+
+    public function test_worklog_can_be_opened_with_a_task_prefilled(): void
+    {
+        $manager = User::factory()->manager()->create();
+        $project = Project::query()->create([
+            'code' => 'PRJ-WL-PREFILL',
+            'name' => 'Project Prefill',
+            'status' => 'active',
+            'owner_id' => $manager->id,
+        ]);
+        $task = Task::query()->create([
+            'project_id' => $project->id,
+            'created_by_id' => $manager->id,
+            'title' => 'Task untuk worklog',
+            'status' => 'todo',
+            'priority' => 'normal',
+        ]);
+
+        Livewire::actingAs($manager)
+            ->test('worklog.today', [
+                'date' => today()->format('Y-m-d'),
+                'taskId' => $task->id,
+            ])
+            ->assertSet('entries.0.task_id', $task->id)
+            ->assertSet('entries.0.project_id', $project->id);
     }
 }

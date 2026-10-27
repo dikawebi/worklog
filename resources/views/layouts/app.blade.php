@@ -72,8 +72,8 @@
                         </button>
 
                         <div class="min-w-0 flex-1">
-                            <p class="truncate text-sm font-bold text-slate-900">IT Worklog — PT Borneo Prima</p>
-                            <p class="truncate text-xs text-slate-500">Aktivitas harian dan progres tim IT</p>
+                            <p class="truncate text-sm font-bold text-slate-900">IT Worklog</p>
+                            <p class="truncate text-xs text-slate-500">PT Borneo Prima</p>
                         </div>
 
                         <form method="GET" action="{{ route('search') }}" class="relative hidden md:block">
@@ -97,10 +97,6 @@
                                 </span>
                             @endif
                         </a>
-
-                        <span class="hidden text-xs font-semibold text-slate-500 xl:inline">
-                            {{ now()->translatedFormat('l, d F Y') }}
-                        </span>
 
                         <button
                             type="button"

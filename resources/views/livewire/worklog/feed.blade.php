@@ -1,4 +1,4 @@
-<div class="mx-auto max-w-5xl space-y-5" wire:loading.class="opacity-75">
+<div class="mx-auto max-w-5xl space-y-5" wire:loading.class="opacity-75" x-data="{ filtersOpen: false }">
     <section class="ui-card p-4 sm:p-5">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -13,46 +13,53 @@
             </div>
         </div>
 
-        <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-                <label for="feed-from" class="worklog-label">Dari tanggal</label>
-                <input id="feed-from" type="date" wire:model.live="from" max="{{ today()->format('Y-m-d') }}" class="worklog-input">
+        @if ($period === 'range')
+            <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                <div>
+                    <label for="feed-from" class="worklog-label">Dari tanggal</label>
+                    <input id="feed-from" type="date" wire:model.live="from" max="{{ today()->format('Y-m-d') }}" class="worklog-input">
+                </div>
+                <div>
+                    <label for="feed-to" class="worklog-label">Sampai tanggal</label>
+                    <input id="feed-to" type="date" wire:model.live="to" max="{{ today()->format('Y-m-d') }}" class="worklog-input">
+                </div>
             </div>
-            <div>
-                <label for="feed-to" class="worklog-label">Sampai tanggal</label>
-                <input id="feed-to" type="date" wire:model.live="to" max="{{ today()->format('Y-m-d') }}" class="worklog-input">
+        @else
+            <div class="mt-5 flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50/60 px-3 py-2 text-xs font-semibold text-blue-800">
+                <span aria-hidden="true">◷</span>
+                Menampilkan aktivitas {{ $period === 'today' ? 'hari ini' : 'minggu ini' }}. Pilih <strong>Rentang</strong> untuk tanggal khusus.
             </div>
-            <div>
-                <label for="feed-user" class="worklog-label">Anggota</label>
-                <select id="feed-user" wire:model.live="userFilter" class="worklog-input">
-                    <option value="">Semua anggota</option>
-                    @foreach ($users as $user)
-                        <option value="{{ $user->id }}">{{ $user->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label for="feed-project" class="worklog-label">Project</label>
-                <select id="feed-project" wire:model.live="projectFilter" class="worklog-input">
-                    <option value="">Semua project</option>
-                    @foreach ($projects as $project)
-                        <option value="{{ $project->id }}">{{ $project->code }} — {{ $project->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+        @endif
+
+        <div class="mt-3 flex justify-end">
+            <button type="button" @click="filtersOpen = ! filtersOpen" class="text-xs font-bold text-brand" :aria-expanded="filtersOpen">Filter anggota/project</button>
+        </div>
+        <div x-show="filtersOpen" x-cloak class="ui-filter-drawer grid gap-3 sm:grid-cols-2">
+            <div><label for="feed-user" class="worklog-label">Anggota</label><select id="feed-user" wire:model.live="userFilter" class="worklog-input"><option value="">Semua anggota</option>@foreach ($users as $user)<option value="{{ $user->id }}">{{ $user->name }}</option>@endforeach</select></div>
+            <div><label for="feed-project" class="worklog-label">Project</label><select id="feed-project" wire:model.live="projectFilter" class="worklog-input"><option value="">Semua project</option>@foreach ($projects as $project)<option value="{{ $project->id }}">{{ $project->code }} — {{ $project->name }}</option>@endforeach</select></div>
         </div>
     </section>
 
     <div class="flex items-center justify-between gap-3">
         <div>
-            <h2 class="text-lg font-bold text-slate-900">Aktivitas terbaru</h2>
+            <p class="app-eyebrow">Timeline tim</p>
+            <h2 class="mt-1 text-lg font-extrabold text-slate-900">Aktivitas terbaru</h2>
             <p class="mt-1 text-sm text-slate-500">{{ $reports->total() }} laporan dengan pekerjaan aktif.</p>
         </div>
         <a href="{{ route('worklogs.index') }}" class="ui-button-primary">Isi Worklog</a>
     </div>
 
     <div class="space-y-4">
+        @php($lastReportDate = null)
         @forelse ($reports as $report)
+            @if ($lastReportDate !== $report->report_date->toDateString())
+                <div class="flex items-center gap-3 pt-2 first:pt-0">
+                    <span class="h-2 w-2 rounded-full bg-brand"></span>
+                    <p class="text-xs font-extrabold uppercase tracking-[0.12em] text-slate-500">{{ $report->report_date->isToday() ? 'Hari ini' : $report->report_date->translatedFormat('l, d F Y') }}</p>
+                    <span class="h-px flex-1 bg-slate-200"></span>
+                </div>
+                @php($lastReportDate = $report->report_date->toDateString())
+            @endif
             <article class="ui-card p-4 transition hover:-translate-y-0.5 hover:shadow-md sm:p-5">
                 <div class="flex items-start gap-3">
                     <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-extrabold text-brand">

@@ -7,7 +7,10 @@
                 <p class="mt-1 text-sm text-slate-500">{{ $task->project?->code ?? 'Tanpa project' }} @if ($task->milestone) · {{ $task->milestone->title }} @endif</p>
             </div>
 
-            <a href="{{ route('tasks.index') }}" class="ui-button-secondary">Kembali ke Tugas</a>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('worklogs.index', ['task' => $task->id]) }}" class="ui-button-primary">Catat worklog</a>
+                <a href="{{ route('tasks.index') }}" class="ui-button-secondary">Kembali ke Tugas</a>
+            </div>
         </div>
     </x-slot>
 

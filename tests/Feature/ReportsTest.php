@@ -78,6 +78,22 @@ class ReportsTest extends TestCase
             ->assertDontSee('Pekerjaan project B');
     }
 
+    public function test_report_has_quick_period_presets(): void
+    {
+        $user = User::factory()->create();
+
+        Livewire::actingAs($user)
+            ->test('reports.index')
+            ->call('setPeriod', 'week')
+            ->assertSet('period', 'week')
+            ->assertSet('from', today()->startOfWeek()->toDateString())
+            ->assertSet('to', today()->toDateString())
+            ->call('setPeriod', 'today')
+            ->assertSet('period', 'today')
+            ->assertSet('from', today()->toDateString())
+            ->assertSet('to', today()->toDateString());
+    }
+
     public function test_report_can_be_exported_as_csv(): void
     {
         $user = User::factory()->create(['name' => 'Andika']);

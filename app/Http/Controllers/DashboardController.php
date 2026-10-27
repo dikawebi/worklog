@@ -58,6 +58,14 @@ class DashboardController extends Controller
                 ->values();
         }
 
+        $myWeekDates = DailyReport::query()
+            ->where('user_id', $user->id)
+            ->whereDate('report_date', '>=', $weekStart->toDateString())
+            ->whereDate('report_date', '<=', $today->toDateString())
+            ->pluck('report_date')
+            ->map(fn ($date): string => (string) $date)
+            ->all();
+
         return view('dashboard', [
             'projectCount' => Project::query()
                 ->where('status', ProjectStatus::Active->value)
@@ -109,6 +117,7 @@ class DashboardController extends Controller
                 ->where('assignee_id', $user->id)
                 ->where('status', '!=', TaskStatus::Done->value)
                 ->count(),
+            'myWeekDates' => $myWeekDates,
             'pendingTodayUsers' => $pendingTodayUsers,
             'weeklyActivity' => $weeklyActivity,
             'canViewTeam' => $canViewTeam,

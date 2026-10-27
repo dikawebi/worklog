@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        User::query()->firstOrCreate(
+        $admin = User::query()->firstOrCreate(
             ['email' => env('ADMIN_EMAIL', 'admin@borneoprima.com')],
             [
                 'name' => env('ADMIN_NAME', 'Administrator IT'),
@@ -37,8 +37,15 @@ class DatabaseSeeder extends Seeder
                 'role' => UserRole::Admin,
                 'position' => 'IT Administrator',
                 'is_active' => true,
-                'email_verified_at' => now(),
             ],
         );
+
+        if ($admin->email_verified_at === null) {
+            $admin->forceFill(['email_verified_at' => now()])->save();
+        }
+
+        if (app()->environment('local', 'testing')) {
+            $this->call(DemoDataSeeder::class);
+        }
     }
 }

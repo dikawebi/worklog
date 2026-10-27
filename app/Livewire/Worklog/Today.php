@@ -22,6 +22,8 @@ class Today extends Component
 
     public string $date;
 
+    public ?int $prefillTaskId = null;
+
     public array $entries = [];
 
     public array $attachments = [];
@@ -32,9 +34,10 @@ class Today extends Component
 
     public ?string $successMessage = null;
 
-    public function mount(string $date): void
+    public function mount(string $date, ?int $taskId = null): void
     {
         $this->date = $date;
+        $this->prefillTaskId = $taskId;
         $this->loadReport();
     }
 
@@ -235,7 +238,7 @@ class Today extends Component
         });
 
         $this->successMessage = 'Worklog berhasil disimpan.';
-        $this->loadReport();
+        $this->resetFormAfterSave();
     }
 
     public function render()
@@ -285,6 +288,15 @@ class Today extends Component
                 'description' => $entry->description,
             ];
         })->all() ?: [$this->emptyEntry()];
+
+        if (! $report && $this->prefillTaskId && isset($this->entries[0])) {
+            $task = Task::query()->find($this->prefillTaskId);
+
+            if ($task) {
+                $this->entries[0]['project_id'] = $task->project_id;
+                $this->entries[0]['task_id'] = $task->id;
+            }
+        }
     }
 
     private function emptyEntry(): array
@@ -296,6 +308,16 @@ class Today extends Component
             'category_id' => Category::query()->where('name', 'Umum')->value('id'),
             'description' => '',
         ];
+    }
+
+    private function resetFormAfterSave(): void
+    {
+        $this->entries = [$this->emptyEntry()];
+        $this->attachments = [[]];
+        $this->existingAttachments = [[]];
+        $this->notes = null;
+        $this->prefillTaskId = null;
+        $this->resetValidation();
     }
 
     private function storeAttachments(WorkLogEntry $entry, int $index): void

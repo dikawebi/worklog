@@ -22,6 +22,8 @@ class Index extends Component
 
     public string $categoryFilter = '';
 
+    public string $period = 'month';
+
     public function mount(): void
     {
         $this->from = today()->startOfMonth()->toDateString();
@@ -30,11 +32,13 @@ class Index extends Component
 
     public function updatedFrom(): void
     {
+        $this->period = 'custom';
         $this->resetPage();
     }
 
     public function updatedTo(): void
     {
+        $this->period = 'custom';
         $this->resetPage();
     }
 
@@ -58,6 +62,28 @@ class Index extends Component
         $this->reset(['userFilter', 'projectFilter', 'categoryFilter']);
         $this->from = today()->startOfMonth()->toDateString();
         $this->to = today()->toDateString();
+        $this->period = 'month';
+        $this->resetPage();
+    }
+
+    public function setPeriod(string $period): void
+    {
+        $today = today()->toImmutable();
+
+        if ($period === 'today') {
+            $this->from = $today->toDateString();
+            $this->to = $this->from;
+        } elseif ($period === 'week') {
+            $this->from = $today->startOfWeek()->toDateString();
+            $this->to = $today->toDateString();
+        } elseif ($period === 'month') {
+            $this->from = $today->startOfMonth()->toDateString();
+            $this->to = $today->toDateString();
+        } else {
+            return;
+        }
+
+        $this->period = $period;
         $this->resetPage();
     }
 

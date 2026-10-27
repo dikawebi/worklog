@@ -1,70 +1,45 @@
-<div class="mx-auto max-w-7xl space-y-5">
-    <section class="ui-card p-4 sm:p-5">
-        <div class="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-            <div>
-                <label for="report-from" class="worklog-label">Dari tanggal</label>
-                <input id="report-from" type="date" wire:model.live="from" class="worklog-input">
-            </div>
-            <div>
-                <label for="report-to" class="worklog-label">Sampai tanggal</label>
-                <input id="report-to" type="date" wire:model.live="to" class="worklog-input">
-            </div>
-            @if ($canViewAll)
-                <div>
-                    <label for="report-user" class="worklog-label">Anggota</label>
-                    <select id="report-user" wire:model.live="userFilter" class="worklog-input">
-                        <option value="">Semua anggota</option>
-                        @foreach ($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            @endif
-            <div>
-                <label for="report-project" class="worklog-label">Project</label>
-                <select id="report-project" wire:model.live="projectFilter" class="worklog-input">
-                    <option value="">Semua project</option>
-                    @foreach ($projects as $project)
-                        <option value="{{ $project->id }}">{{ $project->code }} — {{ $project->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label for="report-category" class="worklog-label">Kategori</label>
-                <select id="report-category" wire:model.live="categoryFilter" class="worklog-input">
-                    <option value="">Semua kategori</option>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}">{{ $category->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="flex items-end">
-                <button type="button" wire:click="resetFilters" class="ui-button-secondary w-full">Reset filter</button>
-            </div>
+<div class="mx-auto max-w-7xl space-y-5" x-data="{ filtersOpen: false }">
+    <section class="ui-toolbar">
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="me-1 text-xs font-semibold text-slate-500">Periode</span>
+            @foreach (['today' => 'Hari ini', 'week' => 'Minggu ini', 'month' => 'Bulan ini'] as $periodKey => $periodLabel)
+                <button type="button" wire:click="setPeriod('{{ $periodKey }}')" class="rounded-lg px-3 py-2 text-xs font-bold transition {{ $period === $periodKey ? 'bg-brand text-white shadow-sm' : 'border border-slate-200 bg-white text-slate-600 hover:border-brand/40 hover:text-brand' }}">{{ $periodLabel }}</button>
+            @endforeach
+            <button type="button" wire:click="$set('period', 'custom')" class="rounded-lg px-3 py-2 text-xs font-bold transition {{ $period === 'custom' ? 'bg-slate-800 text-white' : 'border border-slate-200 bg-white text-slate-600 hover:border-brand/40 hover:text-brand' }}">Custom</button>
+            <button type="button" @click="filtersOpen = ! filtersOpen" class="ui-button-secondary ms-auto" :aria-expanded="filtersOpen">Filter</button>
         </div>
-        <p class="mt-3 text-xs text-slate-500">
-            Periode {{ \Carbon\Carbon::parse($filters['from'])->translatedFormat('d M Y') }} — {{ \Carbon\Carbon::parse($filters['to'])->translatedFormat('d M Y') }}.
-            Laporan memakai jumlah pekerjaan dan hari terisi, bukan jam kerja.
-        </p>
+        <div x-show="filtersOpen" x-cloak class="ui-filter-drawer grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            @if ($period === 'custom')
+                <div><label for="report-from" class="worklog-label">Dari tanggal</label><input id="report-from" type="date" wire:model.live="from" class="worklog-input"></div>
+                <div><label for="report-to" class="worklog-label">Sampai tanggal</label><input id="report-to" type="date" wire:model.live="to" class="worklog-input"></div>
+            @endif
+            @if ($canViewAll)
+                <div><label for="report-user" class="worklog-label">Anggota</label><select id="report-user" wire:model.live="userFilter" class="worklog-input"><option value="">Semua anggota</option>@foreach ($users as $user)<option value="{{ $user->id }}">{{ $user->name }}</option>@endforeach</select></div>
+            @endif
+            <div><label for="report-project" class="worklog-label">Project</label><select id="report-project" wire:model.live="projectFilter" class="worklog-input"><option value="">Semua project</option>@foreach ($projects as $project)<option value="{{ $project->id }}">{{ $project->code }} — {{ $project->name }}</option>@endforeach</select></div>
+            <div><label for="report-category" class="worklog-label">Kategori</label><select id="report-category" wire:model.live="categoryFilter" class="worklog-input"><option value="">Semua kategori</option>@foreach ($categories as $category)<option value="{{ $category->id }}">{{ $category->name }}</option>@endforeach</select></div>
+            <button type="button" wire:click="resetFilters" class="text-left text-xs font-bold text-brand">Reset semua filter</button>
+        </div>
+        <p class="mt-3 text-xs text-slate-500">{{ \Carbon\Carbon::parse($filters['from'])->translatedFormat('d M Y') }} — {{ \Carbon\Carbon::parse($filters['to'])->translatedFormat('d M Y') }} · {{ $summary['entries'] }} pekerjaan.</p>
     </section>
 
-    <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div class="ui-card border-l-4 border-l-brand p-5">
+    <section class="ui-flat-panel grid grid-cols-2 divide-x divide-y divide-slate-100 overflow-hidden rounded-xl sm:grid-cols-4 sm:divide-y-0">
+        <div class="p-4 sm:p-5">
             <p class="text-sm font-medium text-slate-500">Jumlah pekerjaan</p>
             <p class="mt-1 text-2xl font-bold text-slate-900">{{ number_format($summary['entries']) }}</p>
             <p class="mt-1 text-sm text-slate-500">Entri pekerjaan tercatat</p>
         </div>
-        <div class="ui-card border-l-4 border-l-emerald-500 p-5">
+        <div class="p-4 sm:p-5">
             <p class="text-sm font-medium text-slate-500">Hari terisi</p>
             <p class="mt-1 text-2xl font-bold text-slate-900">{{ number_format($summary['days']) }}</p>
             <p class="mt-1 text-sm text-slate-500">Tanggal dengan worklog</p>
         </div>
-        <div class="ui-card border-l-4 border-l-amber-400 p-5">
+        <div class="p-4 sm:p-5">
             <p class="text-sm font-medium text-slate-500">Anggota terlibat</p>
             <p class="mt-1 text-2xl font-bold text-slate-900">{{ number_format($summary['members']) }}</p>
             <p class="mt-1 text-sm text-slate-500">Anggota yang mencatat</p>
         </div>
-        <div class="ui-card border-l-4 border-l-sky-500 p-5">
+        <div class="p-4 sm:p-5">
             <p class="text-sm font-medium text-slate-500">Rata-rata per hari</p>
             <p class="mt-1 text-2xl font-bold text-slate-900">{{ $summary['days'] > 0 ? number_format($summary['entries'] / $summary['days'], 1) : '0' }}</p>
             <p class="mt-1 text-sm text-slate-500">Pekerjaan per hari terisi</p>

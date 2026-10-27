@@ -1,4 +1,4 @@
-<div class="mx-auto max-w-6xl space-y-5" x-data x-on:open-project-form.window="$wire.create()">
+<div class="mx-auto max-w-6xl space-y-5" x-data="{ filtersOpen: false }" x-on:open-project-form.window="$wire.create()">
     @if ($successMessage)
         <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800" role="status">{{ $successMessage }}</div>
     @endif
@@ -66,34 +66,21 @@
         </section>
     @endif
 
-    <section class="ui-card p-4 sm:p-5">
-        <div class="grid gap-3 md:grid-cols-3">
-            <div class="md:col-span-1">
+    <section class="ui-toolbar">
+        <div class="flex gap-2">
+            <div class="min-w-0 flex-1">
                 <label for="project-search" class="sr-only">Cari project</label>
-                <input id="project-search" type="search" wire:model.live.debounce.300ms="search" class="worklog-input" placeholder="Cari kode atau nama project..."></input>
+                <input id="project-search" type="search" wire:model.live.debounce.300ms="search" class="worklog-input" placeholder="Cari project..."></input>
             </div>
-            <div>
-                <label for="project-filter-status" class="sr-only">Filter status</label>
-                <select id="project-filter-status" wire:model.live="statusFilter" class="worklog-input">
-                    <option value="">Semua status</option>
-                    @foreach ($statuses as $projectStatus)
-                        <option value="{{ $projectStatus->value }}">{{ $projectStatus->label() }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <label for="project-filter-owner" class="sr-only">Filter owner</label>
-                <select id="project-filter-owner" wire:model.live="ownerFilter" class="worklog-input">
-                    <option value="">Semua owner</option>
-                    @foreach ($users as $user)
-                        <option value="{{ $user->id }}">{{ $user->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+            <button type="button" @click="filtersOpen = ! filtersOpen" class="ui-button-secondary" :aria-expanded="filtersOpen">Filter</button>
+        </div>
+        <div x-show="filtersOpen" x-cloak class="ui-filter-drawer grid gap-3 sm:grid-cols-2">
+            <div><label for="project-filter-status" class="worklog-label">Status</label><select id="project-filter-status" wire:model.live="statusFilter" class="worklog-input"><option value="">Semua status</option>@foreach ($statuses as $projectStatus)<option value="{{ $projectStatus->value }}">{{ $projectStatus->label() }}</option>@endforeach</select></div>
+            <div><label for="project-filter-owner" class="worklog-label">Owner</label><select id="project-filter-owner" wire:model.live="ownerFilter" class="worklog-input"><option value="">Semua owner</option>@foreach ($users as $user)<option value="{{ $user->id }}">{{ $user->name }}</option>@endforeach</select></div>
         </div>
     </section>
 
-    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <section class="ui-card overflow-hidden px-5">
         @forelse ($projects as $project)
             @php
                 $progress = $project->tasks_count > 0 ? (int) round(($project->completed_tasks_count ?? 0) / $project->tasks_count * 100) : 0;
@@ -105,36 +92,27 @@
                     default => 'bg-slate-100 text-slate-600',
                 };
             @endphp
-            <article class="ui-card flex flex-col p-5 transition hover:-translate-y-0.5 hover:shadow-md">
-                <div class="flex items-start justify-between gap-3">
+            <article class="ui-list-row">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div class="min-w-0">
-                        <p class="text-xs font-bold uppercase tracking-[0.12em] text-brand">{{ $project->code }}</p>
+                        <div class="flex items-center gap-2"><p class="text-xs font-bold uppercase tracking-wide text-brand">{{ $project->code }}</p><span class="ui-badge {{ $statusTone }}">{{ $project->status->label() }}</span></div>
                         <h2 class="mt-1 truncate text-base font-bold text-slate-900">{{ $project->name }}</h2>
                     </div>
-                    <span class="ui-badge shrink-0 {{ $statusTone }}">{{ $project->status->label() }}</span>
+                    <div class="flex items-center gap-4 text-xs text-slate-500">
+                        <span>{{ $project->tasks_count }} task</span><span>{{ $project->members_count }} anggota</span><span>{{ $progress }}%</span>
+                        <a href="{{ route('projects.show', $project) }}" class="font-bold text-brand hover:text-brand-hover">Buka →</a>
+                    </div>
                 </div>
-                <p class="mt-3 line-clamp-2 min-h-10 text-sm leading-5 text-slate-500">{{ $project->description ?: 'Belum ada deskripsi project.' }}</p>
-                <div class="mt-4 flex items-center gap-3">
-                    <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-brand" style="width: {{ $progress }}%"></div></div>
-                    <span class="text-xs font-bold text-slate-600">{{ $progress }}%</span>
-                </div>
-                <div class="mt-4 grid grid-cols-3 gap-2 border-y border-slate-100 py-3 text-center text-xs">
-                    <div><p class="font-bold text-slate-900">{{ $project->members_count }}</p><p class="text-slate-500">Anggota</p></div>
-                    <div><p class="font-bold text-slate-900">{{ $project->tasks_count }}</p><p class="text-slate-500">Task</p></div>
-                    <div><p class="font-bold text-slate-900">{{ $project->milestones_count }}</p><p class="text-slate-500">Milestone</p></div>
-                </div>
-                <div class="mt-auto flex items-center justify-between gap-3 pt-4">
-                    <p class="truncate text-xs text-slate-500">Owner: {{ $project->owner->name }}</p>
-                    <a href="{{ route('projects.show', $project) }}" class="shrink-0 text-xs font-bold text-brand hover:text-brand-hover">Detail →</a>
-                </div>
+                <div class="mt-3 h-1.5 rounded-full bg-slate-100"><div class="h-full rounded-full bg-brand" style="width: {{ $progress }}%"></div></div>
+                <p class="mt-2 truncate text-xs text-slate-500">{{ $project->description ?: 'Belum ada deskripsi project.' }} · Owner: {{ $project->owner->name }}</p>
             </article>
         @empty
-            <div class="ui-card border-dashed p-10 text-center md:col-span-2 xl:col-span-3">
+            <div class="border-dashed p-10 text-center">
                 <h2 class="text-sm font-bold text-slate-900">Belum ada project</h2>
                 <p class="mt-1 text-sm text-slate-500">Project yang sesuai filter akan tampil di sini.</p>
             </div>
         @endforelse
-    </div>
+    </section>
 
     @if ($projects->hasPages())
         <div>{{ $projects->links() }}</div>

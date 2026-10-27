@@ -1,276 +1,107 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <p class="text-xs font-bold uppercase tracking-[0.14em] text-brand">Beranda / Dasbor</p>
-                <h1 class="mt-1 text-xl font-bold text-slate-900">Dasbor</h1>
-                <p class="mt-1 text-sm text-slate-500">Ringkasan aktivitas dan progres tim IT.</p>
+                <p class="app-eyebrow">Workspace</p>
+                <h1 class="mt-1 text-xl font-bold tracking-tight text-slate-900">Selamat datang kembali, {{ auth()->user()->name }}.</h1>
+                <p class="mt-1 text-sm text-slate-500">{{ $canViewTeam ? 'Ringkasan singkat kondisi tim hari ini.' : 'Ini yang perlu kamu selesaikan hari ini.' }}</p>
             </div>
-
             <a href="{{ route('worklogs.index') }}" class="ui-button-primary">
-                {{ $hasTodayReport ? 'Lihat Worklog Hari Ini' : 'Isi Worklog Hari Ini' }}
+                <span aria-hidden="true">+</span>
+                {{ $hasTodayReport ? 'Buka worklog' : 'Catat pekerjaan' }}
             </a>
         </div>
     </x-slot>
 
-    <div class="space-y-6">
-        <section class="brand-gradient overflow-hidden rounded-2xl px-6 py-7 text-white shadow-lg shadow-blue-900/10 sm:px-8">
-            <div class="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-                <div class="max-w-2xl">
-                    <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-blue-200">
-                        IT Worklog / Command Center
-                    </p>
-                    <h2 class="text-2xl font-extrabold tracking-tight sm:text-3xl">
-                        Selamat datang kembali, {{ auth()->user()->name }}.
-                    </h2>
-                    <p class="mt-2 max-w-xl text-sm leading-6 text-blue-100">
-                        Pantau pekerjaan harian, tugas, dan progres project tim dari satu ruang kerja.
-                    </p>
-                </div>
-
-                @if ($hasTodayReport)
-                    <span class="inline-flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-bold text-white">
-                        <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                        Worklog hari ini sudah diisi
-                    </span>
-                @else
-                    <span class="inline-flex w-fit items-center gap-2 rounded-full border border-amber-300/40 bg-amber-400/15 px-3 py-1.5 text-xs font-bold text-amber-100">
-                        <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                        Worklog hari ini belum diisi
-                    </span>
-                @endif
-            </div>
-        </section>
-
-        <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="ui-card border-l-4 border-l-brand p-5">
-                <p class="text-sm font-medium text-slate-500">Aktivitas hari ini</p>
-                <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $todayReports }}</p>
-                <p class="mt-1 text-sm text-slate-500">Laporan yang sudah diisi</p>
-            </div>
-
-            <div class="ui-card border-l-4 border-l-amber-400 p-5">
-                <p class="text-sm font-medium text-slate-500">Laporan tim</p>
-                <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $todayReports }}/{{ $activeUsers }}</p>
-                <p class="mt-1 text-sm text-slate-500">Anggota aktif hari ini</p>
-            </div>
-
-            <div class="ui-card border-l-4 border-l-rose-500 p-5">
-                <p class="text-sm font-medium text-slate-500">Task overdue</p>
-                <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $overdueTasks }}</p>
-                <p class="mt-1 text-sm text-slate-500">Melewati deadline</p>
-            </div>
-
-            <div class="ui-card border-l-4 border-l-emerald-500 p-5">
-                <p class="text-sm font-medium text-slate-500">Project aktif</p>
-                <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $projectCount }}</p>
-                <p class="mt-1 text-sm text-slate-500">Sedang berjalan</p>
-            </div>
-        </section>
-
-        <section class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div class="ui-card p-5">
-                <p class="text-sm font-medium text-slate-500">Pekerjaan saya minggu ini</p>
-                <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $myWeekEntries }}</p>
-                <p class="mt-1 text-sm text-slate-500">Entri worklog pribadi</p>
-            </div>
-            <div class="ui-card p-5">
-                <p class="text-sm font-medium text-slate-500">Hari terisi</p>
-                <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $myWeekDays }}</p>
-                <p class="mt-1 text-sm text-slate-500">Hari dengan worklog minggu ini</p>
-            </div>
-            <div class="ui-card p-5">
-                <p class="text-sm font-medium text-slate-500">Task terbuka saya</p>
-                <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $myOpenTasksCount }}</p>
-                <p class="mt-1 text-sm text-slate-500">Belum selesai</p>
-            </div>
+    <div class="mx-auto max-w-6xl space-y-5">
+        <section class="ui-flat-panel grid grid-cols-2 divide-x divide-slate-100 overflow-hidden rounded-xl sm:grid-cols-4">
+            @if ($canViewTeam)
+                <div class="p-4 sm:p-5"><p class="text-xs font-semibold text-slate-500">Worklog tim</p><p class="mt-1 text-2xl font-bold text-slate-900">{{ $todayReports }}/{{ $activeUsers }}</p><p class="mt-1 text-xs text-slate-500">terisi hari ini</p></div>
+                <div class="p-4 sm:p-5"><p class="text-xs font-semibold text-slate-500">Perlu perhatian</p><p class="mt-1 text-2xl font-bold text-rose-600">{{ $overdueTasks }}</p><p class="mt-1 text-xs text-slate-500">task terlambat</p></div>
+                <div class="p-4 sm:p-5"><p class="text-xs font-semibold text-slate-500">Project aktif</p><p class="mt-1 text-2xl font-bold text-slate-900">{{ $projectCount }}</p><p class="mt-1 text-xs text-slate-500">sedang berjalan</p></div>
+                <div class="p-4 sm:p-5"><p class="text-xs font-semibold text-slate-500">Aktivitas minggu ini</p><p class="mt-1 text-2xl font-bold text-slate-900">{{ $weeklyActivity->sum('entries') }}</p><p class="mt-1 text-xs text-slate-500">pekerjaan tercatat</p></div>
+            @else
+                <div class="p-4 sm:p-5"><p class="text-xs font-semibold text-slate-500">Task terbuka</p><p class="mt-1 text-2xl font-bold text-slate-900">{{ $myOpenTasksCount }}</p><p class="mt-1 text-xs text-slate-500">belum selesai</p></div>
+                <div class="p-4 sm:p-5"><p class="text-xs font-semibold text-slate-500">Pekerjaan saya minggu ini</p><p class="mt-1 text-2xl font-bold text-slate-900">{{ $myWeekEntries }}</p><p class="mt-1 text-xs text-slate-500">pekerjaan tercatat</p></div>
+                <div class="p-4 sm:p-5"><p class="text-xs font-semibold text-slate-500">Hari terisi</p><p class="mt-1 text-2xl font-bold text-slate-900">{{ $myWeekDays }}/6</p><p class="mt-1 text-xs text-slate-500">hari kerja minggu ini</p></div>
+                <div class="p-4 sm:p-5"><p class="text-xs font-semibold text-slate-500">Project aktif</p><p class="mt-1 text-2xl font-bold text-slate-900">{{ $projectCount }}</p><p class="mt-1 text-xs text-slate-500">yang sedang berjalan</p></div>
+            @endif
         </section>
 
         @if ($canViewTeam)
-            <section class="grid grid-cols-1 gap-6 xl:grid-cols-2">
-                <div class="ui-card p-5 sm:p-6">
-                    <div class="mb-4 flex items-start justify-between gap-3">
-                        <div>
-                            <p class="text-xs font-bold uppercase tracking-[0.14em] text-brand">Manager</p>
-                            <h2 class="mt-1 text-lg font-bold text-slate-900">Belum isi hari ini</h2>
-                        </div>
-                        <span class="ui-badge {{ $pendingTodayUsers->isEmpty() ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800' }}">{{ $pendingTodayUsers->count() }} anggota</span>
+            <section class="grid gap-5 lg:grid-cols-[1.1fr_.9fr]">
+                <div class="ui-card p-5">
+                    <div class="flex items-center justify-between gap-3">
+                        <div><p class="app-eyebrow">Action needed</p><h2 class="mt-1 text-base font-bold text-slate-900">Belum isi hari ini</h2></div>
+                        <a href="{{ route('feed') }}" class="text-xs font-bold text-brand hover:text-brand-hover">Aktivitas tim →</a>
                     </div>
-
-                    <div class="space-y-2">
+                    <div class="mt-4 divide-y divide-slate-100">
                         @forelse ($pendingTodayUsers as $pendingUser)
-                            <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-2">
-                                <div>
-                                    <p class="text-sm font-bold text-slate-900">{{ $pendingUser->name }}</p>
-                                    <p class="text-xs text-slate-500">{{ $pendingUser->position ?: 'Anggota tim' }}</p>
-                                </div>
-                                <span class="ui-badge bg-amber-100 text-amber-800">Belum</span>
+                            <div class="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                                <span class="dashboard-avatar">{{ strtoupper(substr($pendingUser->name, 0, 1)) }}</span>
+                                <div class="min-w-0 flex-1"><p class="truncate text-sm font-semibold text-slate-900">{{ $pendingUser->name }}</p><p class="truncate text-xs text-slate-500">{{ $pendingUser->position ?: 'Anggota tim' }}</p></div>
+                                <span class="text-xs font-semibold text-amber-600">Belum</span>
                             </div>
                         @empty
-                            <div class="rounded-xl border border-dashed border-emerald-200 bg-emerald-50 px-4 py-6 text-center">
-                                <p class="text-sm font-bold text-emerald-800">Semua anggota sudah mengisi worklog hari ini.</p>
-                            </div>
+                            <p class="py-6 text-sm text-emerald-700">Semua anggota sudah mengisi.</p>
                         @endforelse
                     </div>
                 </div>
 
-                <div class="ui-card p-5 sm:p-6">
-                    <div class="mb-4">
-                        <p class="text-xs font-bold uppercase tracking-[0.14em] text-brand">Manager</p>
-                        <h2 class="mt-1 text-lg font-bold text-slate-900">Aktivitas minggu ini</h2>
+                <div class="ui-card p-5">
+                    <div class="flex items-center justify-between gap-3"><div><p class="app-eyebrow">Team pulse</p><h2 class="mt-1 text-base font-bold text-slate-900">Aktivitas minggu ini</h2></div><a href="{{ route('reports.index') }}" class="text-xs font-bold text-brand">Laporan →</a></div>
+                    <div class="mt-4 space-y-4">
+                        @forelse ($weeklyActivity->take(5) as $row)
+                            <div><div class="mb-1 flex justify-between gap-3 text-xs"><span class="truncate font-semibold text-slate-800">{{ $row['name'] }}</span><span class="shrink-0 text-slate-500">{{ $row['entries'] }} pekerjaan</span></div><div class="h-1.5 rounded-full bg-slate-100"><div class="h-full rounded-full bg-brand" style="width: {{ min(100, $row['entries'] * 12) }}%"></div></div></div>
+                        @empty
+                            <p class="py-6 text-sm text-slate-500">Belum ada aktivitas minggu ini.</p>
+                        @endforelse
                     </div>
-
-                    <div class="table-wrap overflow-x-auto">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-500">
-                                <tr><th class="px-3 py-2">Anggota</th><th class="px-3 py-2">Pekerjaan</th><th class="px-3 py-2">Hari</th></tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                @forelse ($weeklyActivity as $row)
-                                    <tr>
-                                        <td class="px-3 py-2">
-                                            <p class="font-semibold text-slate-900">{{ $row['name'] }}</p>
-                                            <p class="text-xs text-slate-500">{{ $row['position'] ?: 'Anggota tim' }}</p>
-                                        </td>
-                                        <td class="px-3 py-2 font-bold text-slate-700">{{ $row['entries'] }}</td>
-                                        <td class="px-3 py-2 text-slate-600">{{ $row['days'] }}</td>
-                                    </tr>
-                                @empty
-                                    <tr><td colspan="3" class="px-3 py-6 text-center text-sm text-slate-500">Belum ada aktivitas minggu ini.</td></tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                </div>
+            </section>
+        @else
+            <section class="grid gap-5 lg:grid-cols-[1.25fr_.75fr]">
+                <div class="ui-card p-5">
+                    <div class="flex items-center justify-between gap-3"><div><p class="app-eyebrow">Focus list</p><h2 class="mt-1 text-base font-bold text-slate-900">Task prioritas kamu</h2></div><a href="{{ route('tasks.index') }}" class="text-xs font-bold text-brand">Lihat semua →</a></div>
+                    <div class="mt-3 divide-y divide-slate-100">
+                        @forelse ($myOpenTasks as $task)
+                            @php($isOverdue = $task->due_date && $task->due_date->isPast())
+                            <a href="{{ route('tasks.show', $task) }}" class="ui-list-row flex items-center gap-3 first:pt-0 last:pb-0">
+                                <span class="h-2 w-2 shrink-0 rounded-full {{ $task->priority->value === 'urgent' ? 'bg-rose-500' : ($task->priority->value === 'high' ? 'bg-amber-400' : 'bg-slate-300') }}"></span>
+                                <span class="min-w-0 flex-1"><strong class="block truncate text-sm font-semibold text-slate-900">{{ $task->title }}</strong><small class="mt-1 block truncate text-xs text-slate-500">{{ $task->project?->code ?? 'Tanpa project' }}</small></span>
+                                <span class="shrink-0 text-xs {{ $isOverdue ? 'font-bold text-rose-600' : 'text-slate-500' }}">{{ $task->due_date?->translatedFormat('d M') ?? '—' }}</span>
+                            </a>
+                        @empty
+                            <p class="py-6 text-sm text-slate-500">Semua task selesai.</p>
+                        @endforelse
                     </div>
+                </div>
+                <div class="ui-card p-5">
+                    <div class="flex items-center justify-between gap-3"><div><p class="app-eyebrow">Your activity</p><h2 class="mt-1 text-base font-bold text-slate-900">Progress minggu ini</h2></div><span class="text-xs font-semibold text-brand">{{ $myWeekDays }}/6 hari</span></div>
+                    <div class="dashboard-week-grid mt-5" aria-label="Progress worklog minggu ini">
+                        @for ($day = 0; $day < 6; $day++)
+                            @php($dayDate = now()->startOfWeek()->addDays($day))
+                            @php($filled = in_array($dayDate->toDateString(), $myWeekDates, true))
+                            <div class="dashboard-week-day {{ $filled && $dayDate->day <= today()->day ? 'is-filled' : '' }}"><span>{{ $dayDate->translatedFormat('D') }}</span><i></i><small>{{ $dayDate->format('d') }}</small></div>
+                        @endfor
+                    </div>
+                    <a href="{{ route('worklogs.index') }}" class="ui-button-secondary mt-5 w-full">Buka worklog</a>
                 </div>
             </section>
         @endif
 
-        <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
-            <section class="ui-card p-5 sm:p-6 xl:col-span-2">
-                <div class="mb-5 flex items-end justify-between gap-4">
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-[0.14em] text-brand">Ruang kerja</p>
-                        <h2 class="mt-1 text-lg font-bold text-slate-900">Aktivitas tim terbaru</h2>
-                    </div>
-                    <a href="{{ route('feed') }}" class="text-xs font-bold text-brand hover:text-brand-hover">Lihat semua</a>
-                </div>
-
-                <div class="divide-y divide-slate-100">
-                    @forelse ($recentReports as $report)
-                        <div class="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-                            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-soft text-sm font-extrabold text-brand">
-                                {{ strtoupper(substr($report->user->name, 0, 1)) }}
-                            </span>
-                            <div class="min-w-0 flex-1">
-                                <p class="truncate text-sm font-bold text-slate-900">
-                                    {{ $report->user->name }}
-                                    <span class="font-medium text-slate-400">· {{ $report->report_date->translatedFormat('d M Y') }}</span>
-                                </p>
-                                <p class="mt-0.5 text-xs font-semibold text-slate-500">
-                                    {{ $report->entries_count }} pekerjaan dicatat
-                                </p>
-                                @if ($report->notes)
-                                    <p class="mt-1 line-clamp-2 text-sm text-slate-600">{{ $report->notes }}</p>
-                                @endif
-                            </div>
-                            <a href="{{ route('feed') }}" class="shrink-0 text-xs font-bold text-brand hover:text-brand-hover">Lihat</a>
-                        </div>
-                    @empty
-                        <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-center">
-                            <p class="text-sm font-bold text-slate-700">Belum ada aktivitas</p>
-                            <p class="mt-1 text-xs text-slate-500">Worklog tim akan muncul di sini setelah diisi.</p>
-                        </div>
-                    @endforelse
-                </div>
-            </section>
-
-            <section class="ui-card p-5 sm:p-6">
-                <div class="mb-5 flex items-start justify-between gap-3">
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-[0.14em] text-brand">Prioritas</p>
-                        <h2 class="mt-1 text-lg font-bold text-slate-900">Tugas saya</h2>
-                    </div>
-                    <a href="{{ route('tasks.index') }}" class="text-xs font-bold text-brand hover:text-brand-hover">Lihat semua</a>
-                </div>
-
-                <div class="space-y-3">
-                    @forelse ($myOpenTasks as $task)
-                        @php
-                            $priorityTone = match ($task->priority->value) {
-                                'urgent' => 'bg-rose-100 text-rose-700',
-                                'high' => 'bg-amber-100 text-amber-800',
-                                'low' => 'bg-slate-100 text-slate-600',
-                                default => 'bg-sky-100 text-sky-800',
-                            };
-                        @endphp
-
-                        <div class="rounded-xl border border-slate-200 p-3">
-                            <div class="flex items-start justify-between gap-2">
-                                <p class="text-sm font-bold text-slate-900">{{ $task->title }}</p>
-                                <span class="ui-badge {{ $priorityTone }}">{{ $task->priority->label() }}</span>
-                            </div>
-                            <p class="mt-1 text-xs text-slate-500">
-                                {{ $task->project?->code ?? 'Tanpa project' }}
-                                @if ($task->due_date)
-                                    · {{ $task->due_date->translatedFormat('d M') }}
-                                @endif
-                            </p>
-                        </div>
-                    @empty
-                        <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-center">
-                            <p class="text-sm font-bold text-slate-700">Tidak ada tugas terbuka</p>
-                            <p class="mt-1 text-xs text-slate-500">Tugas yang diberikan kepadamu akan tampil di sini.</p>
-                        </div>
-                    @endforelse
-                </div>
-            </section>
-        </div>
-
-        <section class="ui-card p-5 sm:p-6">
-            <div class="mb-5 flex items-end justify-between gap-4">
-                <div>
-                    <p class="text-xs font-bold uppercase tracking-[0.14em] text-brand">Monitoring</p>
-                    <h2 class="mt-1 text-lg font-bold text-slate-900">Health project</h2>
-                </div>
-                <a href="{{ route('projects.index') }}" class="text-xs font-bold text-brand hover:text-brand-hover">Lihat project</a>
-            </div>
-
-            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <section class="ui-card p-5">
+            <div class="flex items-center justify-between gap-3"><div><p class="app-eyebrow">Projects</p><h2 class="mt-1 text-base font-bold text-slate-900">Project aktif</h2></div><a href="{{ route('projects.index') }}" class="text-xs font-bold text-brand">Lihat semua →</a></div>
+            <div class="mt-3 divide-y divide-slate-100">
                 @forelse ($activeProjects as $project)
-                    @php
-                        $progress = $project->tasks_count > 0
-                            ? (int) round(($project->completed_tasks_count / $project->tasks_count) * 100)
-                            : 0;
-                    @endphp
-
-                    <div class="rounded-xl border border-slate-200 p-4">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="min-w-0">
-                                <p class="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">{{ $project->code }}</p>
-                                <h3 class="mt-1 truncate text-sm font-bold text-slate-900">{{ $project->name }}</h3>
-                            </div>
-                            <span class="ui-badge bg-emerald-100 text-emerald-700">{{ $project->status->label() }}</span>
-                        </div>
-
-                        <div class="mt-4 flex items-center gap-3">
-                            <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
-                                <div class="h-full rounded-full bg-brand" style="width: {{ $progress }}%"></div>
-                            </div>
-                            <span class="text-xs font-bold text-slate-600">{{ $progress }}%</span>
-                        </div>
-
-                        <p class="mt-2 text-xs text-slate-500">
-                            {{ $project->completed_tasks_count }}/{{ $project->tasks_count }} task selesai
-                            @if ($project->due_date)
-                                · due {{ $project->due_date->translatedFormat('d M') }}
-                            @endif
-                        </p>
-                    </div>
+                    @php($progress = $project->tasks_count > 0 ? (int) round(($project->completed_tasks_count / $project->tasks_count) * 100) : 0)
+                    <a href="{{ route('projects.show', $project) }}" class="ui-list-row block first:pt-0 last:pb-0">
+                        <div class="flex items-center justify-between gap-3"><div class="min-w-0"><span class="text-[10px] font-bold uppercase tracking-wide text-slate-400">{{ $project->code }}</span><h3 class="truncate text-sm font-semibold text-slate-900">{{ $project->name }}</h3></div><span class="text-xs font-bold text-slate-600">{{ $progress }}%</span></div>
+                        <div class="mt-2 h-1.5 rounded-full bg-slate-100"><div class="h-full rounded-full bg-brand" style="width: {{ $progress }}%"></div></div>
+                        <p class="mt-1 text-xs text-slate-500">{{ $project->completed_tasks_count }}/{{ $project->tasks_count }} task selesai @if ($project->due_date) · deadline {{ $project->due_date->translatedFormat('d M') }} @endif</p>
+                    </a>
                 @empty
-                    <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-center md:col-span-2">
-                        <p class="text-sm font-bold text-slate-700">Belum ada project aktif</p>
-                        <p class="mt-1 text-xs text-slate-500">Project yang berstatus aktif akan tampil di sini.</p>
-                    </div>
+                    <p class="py-6 text-sm text-slate-500">Belum ada project aktif.</p>
                 @endforelse
             </div>
         </section>
