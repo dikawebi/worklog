@@ -62,6 +62,27 @@ class Today extends Component
         $this->successMessage = null;
 
         if (count($this->entries) === 1) {
+            $entryId = $this->entries[0]['id'] ?? null;
+
+            if ($entryId) {
+                $entry = WorkLogEntry::query()
+                    ->whereKey($entryId)
+                    ->whereHas('dailyReport', fn ($query) => $query->where('user_id', auth()->id()))
+                    ->with('dailyReport')
+                    ->first();
+
+                if ($entry) {
+                    $report = $entry->dailyReport;
+                    $entry->delete();
+
+                    if ($report && $report->entries()->count() === 0) {
+                        $report->delete();
+                    }
+
+                    $this->successMessage = 'Pekerjaan terakhir dihapus. Laporan harian dikosongkan.';
+                }
+            }
+
             $this->entries[0] = $this->emptyEntry();
             $this->attachments[0] = [];
             $this->existingAttachments[0] = [];
@@ -75,6 +96,26 @@ class Today extends Component
         unset($this->attachments[$index], $this->existingAttachments[$index]);
         $this->attachments = array_values($this->attachments);
         $this->existingAttachments = array_values($this->existingAttachments);
+    }
+
+    public function removeAttachment(int $index, int $attachmentId): void
+    {
+        $entryId = $this->entries[$index]['id'] ?? null;
+
+        if (! $entryId) {
+            return;
+        }
+
+        $entry = WorkLogEntry::query()
+            ->whereKey($entryId)
+            ->whereHas('dailyReport', fn ($query) => $query->where('user_id', auth()->id()))
+            ->firstOrFail();
+
+        $attachment = $entry->attachments()->findOrFail($attachmentId);
+        $attachment->delete();
+
+        $this->loadReport();
+        $this->successMessage = 'Lampiran berhasil dihapus.';
     }
 
     public function save(): void
@@ -108,11 +149,14 @@ class Today extends Component
         ]);
 
         foreach ($this->attachments as $index => $uploads) {
+            $existingCount = count($this->existingAttachments[$index] ?? []);
+            $remainingSlots = max(0, 3 - $existingCount);
+
             $this->validate([
-                "attachments.{$index}" => ['array', 'max:3'],
+                "attachments.{$index}" => ['array', 'max:'.$remainingSlots],
                 "attachments.{$index}.*" => ['file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
             ], [
-                "attachments.{$index}.max" => 'Maksimal 3 lampiran per pekerjaan.',
+                "attachments.{$index}.max" => 'Maksimal 3 lampiran per pekerjaan, termasuk lampiran yang sudah tersimpan.',
                 "attachments.{$index}.*.mimes" => 'Lampiran harus berupa JPG, PNG, WEBP, atau PDF.',
                 "attachments.{$index}.*.max" => 'Ukuran setiap lampiran maksimal 5 MB.',
             ]);
@@ -158,7 +202,7 @@ class Today extends Component
                 $this->storeAttachments($workLogEntry, $sortOrder);
             }
 
-            $report->entries()->whereNotIn('id', $keptEntryIds)->delete();
+            $report->entries()->whereNotIn('id', $keptEntryIds)->get()->each->delete();
         });
 
         $this->successMessage = 'Worklog berhasil disimpan.';

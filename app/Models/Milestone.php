@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\MilestoneStatus;
+use App\Models\Concerns\LogsActivityChanges;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable(['project_id', 'title', 'description', 'due_date', 'status', 'completed_at', 'sort_order'])]
 class Milestone extends Model
 {
-    use SoftDeletes;
+    use LogsActivityChanges, SoftDeletes;
 
     protected function casts(): array
     {

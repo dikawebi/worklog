@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivityChanges;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
 #[Fillable(['app_name', 'timezone', 'workdays', 'reminder_time', 'mail_from_address', 'mail_from_name'])]
 class Setting extends Model
 {
+    use LogsActivityChanges;
+
     protected function casts(): array
     {
         return [

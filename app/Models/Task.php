@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
+use App\Models\Concerns\LogsActivityChanges;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -28,7 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class Task extends Model
 {
-    use SoftDeletes;
+    use LogsActivityChanges, SoftDeletes;
 
     protected function casts(): array
     {

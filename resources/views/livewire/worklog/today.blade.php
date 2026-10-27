@@ -89,10 +89,13 @@
                         @if (!empty($existingAttachments[$index]))
                             <div class="mt-3 flex flex-wrap gap-2">
                                 @foreach ($existingAttachments[$index] as $attachment)
-                                    <a href="{{ $attachment['url'] }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600 hover:border-brand/40 hover:text-brand">
-                                        <span aria-hidden="true">📎</span>
-                                        <span class="max-w-[14rem] truncate">{{ $attachment['name'] }}</span>
-                                    </a>
+                                    <span class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 py-1 ps-3 pe-1 text-xs font-semibold text-slate-600">
+                                        <a href="{{ $attachment['url'] }}" class="inline-flex items-center gap-2 hover:text-brand">
+                                            <span aria-hidden="true">📎</span>
+                                            <span class="max-w-[14rem] truncate">{{ $attachment['name'] }}</span>
+                                        </a>
+                                        <button type="button" wire:click="removeAttachment({{ $index }}, {{ $attachment['id'] }})" wire:confirm="Hapus lampiran ini?" class="rounded-md px-2 py-1 text-rose-600 hover:bg-rose-50" aria-label="Hapus lampiran {{ $attachment['name'] }}">Hapus</button>
+                                    </span>
                                 @endforeach
                             </div>
                         @endif

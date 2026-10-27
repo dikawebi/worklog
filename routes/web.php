@@ -51,11 +51,7 @@ Route::middleware('auth')->group(function () {
         Route::view('/categories', 'admin.categories')->name('categories');
         Route::view('/settings', 'admin.settings')->name('settings');
 
-        Route::view('/audit', 'placeholder', [
-            'title' => 'Audit Log',
-            'description' => 'Telusuri perubahan data penting beserta pelaku dan waktunya.',
-            'icon' => 'audit',
-        ])->name('audit');
+        Route::view('/audit', 'admin.audit')->name('audit');
     });
 });
 

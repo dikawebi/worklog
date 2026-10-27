@@ -41,14 +41,22 @@ npm run build
 
 ## 3. Ringkasan sprint
 
-| Sprint | Fokus | Status awal | Target |
+| Sprint | Fokus | Status 27 Okt 2026 | Sisa |
 |---|---|---|---|
-| 1 | Fondasi, auth, role, master data, staging | ~40% | Selesai 100% |
-| 2 | Project, anggota, milestone | ~90% | Verifikasi dan tutup gap |
-| 3 | Task dan penyempurnaan worklog | ~50% | Selesai 100% |
-| 4 | Worklog, lampiran, audit dasar, feed | ~80% | Selesai 100% |
-| 5 | Dashboard, laporan, reminder | ~10% | Selesai 100% |
-| 6 | Audit viewer, hardening, UAT, go-live | ~5% | Siap produksi |
+| 1 | Fondasi, auth, role, master data, staging | Selesai, kecuali deploy staging | Menunggu akses hosting |
+| 2 | Project, anggota, milestone | Selesai | — |
+| 3 | Task dan penyempurnaan worklog | Selesai | Integrasi filter task di worklog opsional |
+| 4 | Worklog, lampiran, audit dasar, feed | Hampir selesai | Restore UI (US-33) |
+| 5 | Dashboard, laporan, reminder | Belum | Seluruh US-24 s.d. US-31 |
+| 6 | Audit viewer, hardening, UAT, go-live | Sebagian | Restore, hardening, deploy, backup, UAT |
+
+Catatan eksekusi:
+
+- Commit `c47682e` — Sprint 1: login user aktif, admin users, kategori, settings, profil.
+- Commit `eef0039` — Sprint 2/3: task CRUD, workflow status, Tugas Saya, board, overdue milestone.
+- Commit Sprint 4/6 — audit logging, audit viewer, batas lampiran, hapus lampiran, dan hapus entri terakhir.
+- Audit viewer dan audit logging sudah berjalan; 73 test lulus dan Pint bersih.
+- `public/hot` sudah dihapus dan asset produksi sudah dibangun.
 
 ## 4. Rencana per sprint
 

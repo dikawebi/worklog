@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\ProjectStatus;
+use App\Models\Concerns\LogsActivityChanges;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable(['code', 'name', 'description', 'status', 'owner_id', 'start_date', 'due_date', 'completed_at'])]
 class Project extends Model
 {
-    use SoftDeletes;
+    use LogsActivityChanges, SoftDeletes;
 
     protected function casts(): array
     {
