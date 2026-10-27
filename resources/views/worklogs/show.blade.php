@@ -59,5 +59,7 @@
                 <p class="mt-2 text-sm leading-6 text-slate-700">{{ $report->notes }}</p>
             </section>
         @endif
+
+        <livewire:comments :commentable-type="\App\Models\DailyReport::class" :commentable-id="$report->id" />
     </div>
 </x-app-layout>

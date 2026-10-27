@@ -6,6 +6,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectShowController;
 use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\ReportPrintController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\TaskShowController;
 use App\Http\Controllers\WorklogController;
 use App\Http\Controllers\WorklogShowController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +31,8 @@ Route::middleware('auth')->group(function () {
         ->name('worklogs.index');
 
     Route::view('/feed', 'feed.index')->name('feed');
+    Route::view('/notifications', 'notifications.index')->name('notifications.index');
+    Route::get('/search', SearchController::class)->name('search');
 
     Route::get('/worklogs/report/{report}', WorklogShowController::class)
         ->name('worklogs.show');
@@ -38,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/projects/{project}', ProjectShowController::class)->name('projects.show');
 
     Route::view('/tasks', 'tasks.index')->name('tasks.index');
+    Route::get('/tasks/{task}', TaskShowController::class)->name('tasks.show');
 
     Route::view('/reports', 'reports.index')->name('reports.index');
     Route::get('/reports/export', ReportExportController::class)->name('reports.export');

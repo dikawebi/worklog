@@ -50,6 +50,35 @@ class Today extends Component
         $this->loadReport();
     }
 
+    public function updated(string $property, mixed $value): void
+    {
+        if (preg_match('/^entries\.(\d+)\.project_id$/', $property, $matches)) {
+            $index = (int) $matches[1];
+            $taskId = $this->entries[$index]['task_id'] ?? null;
+
+            if ($taskId && $value) {
+                $belongsToProject = Task::query()
+                    ->whereKey($taskId)
+                    ->where('project_id', $value)
+                    ->exists();
+
+                if (! $belongsToProject) {
+                    $this->entries[$index]['task_id'] = null;
+                }
+            }
+
+            return;
+        }
+
+        if (preg_match('/^entries\.(\d+)\.task_id$/', $property, $matches) && $value) {
+            $index = (int) $matches[1];
+
+            if (empty($this->entries[$index]['project_id'])) {
+                $this->entries[$index]['project_id'] = Task::query()->whereKey($value)->value('project_id');
+            }
+        }
+    }
+
     public function addEntry(): void
     {
         $this->successMessage = null;

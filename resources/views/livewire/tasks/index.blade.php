@@ -158,10 +158,15 @@
     </section>
 
     @if ($viewMode === 'board')
-        <div class="grid gap-4 xl:grid-cols-4">
+        <div class="task-board -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 xl:mx-0 xl:grid xl:grid-cols-4 xl:overflow-visible xl:px-0" x-data="{ dragging: null }">
             @foreach ($statuses as $statusOption)
                 @php($columnTasks = $boardTasks[$statusOption->value] ?? collect())
-                <section class="min-w-0 rounded-2xl border border-slate-200 bg-slate-50/80 p-3">
+                <section
+                    class="min-w-[280px] snap-start rounded-2xl border border-slate-200 bg-slate-50/80 p-3 transition xl:min-w-0"
+                    @dragover.prevent="$el.classList.add('border-brand/50', 'bg-brand-soft/30')"
+                    @dragleave="$el.classList.remove('border-brand/50', 'bg-brand-soft/30')"
+                    @drop.prevent="$el.classList.remove('border-brand/50', 'bg-brand-soft/30'); if (dragging) { $wire.changeStatus(dragging, '{{ $statusOption->value }}'); dragging = null; }"
+                >
                     <div class="flex items-center justify-between gap-2 px-1 py-1">
                         <h2 class="text-sm font-bold text-slate-800">{{ $statusOption->label() }}</h2>
                         <span class="ui-badge bg-white text-slate-600 ring-1 ring-slate-200">{{ $columnTasks->count() }}</span>
@@ -169,12 +174,20 @@
 
                     <div class="mt-3 space-y-3">
                         @forelse ($columnTasks as $task)
-                            <article class="ui-card p-4" wire:key="board-task-{{ $task->id }}">
+                            <article
+                                class="ui-card cursor-grab p-4 active:cursor-grabbing"
+                                wire:key="board-task-{{ $task->id }}"
+                                draggable="true"
+                                @dragstart="dragging = {{ $task->id }}"
+                                @dragend="dragging = null"
+                            >
                                 <div class="flex items-start justify-between gap-2">
                                     <p class="text-xs font-bold uppercase tracking-wide text-brand">{{ $task->project?->code ?? 'Tanpa project' }}</p>
                                     <span class="ui-badge {{ $task->priority->value === 'urgent' ? 'bg-rose-100 text-rose-700' : ($task->priority->value === 'high' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-600') }}">{{ $task->priority->label() }}</span>
                                 </div>
-                                <h3 class="mt-2 text-sm font-bold leading-5 text-slate-900">{{ $task->title }}</h3>
+                                <h3 class="mt-2 text-sm font-bold leading-5 text-slate-900">
+                                    <a href="{{ route('tasks.show', $task) }}" class="hover:text-brand">{{ $task->title }}</a>
+                                </h3>
                                 @if ($task->description)
                                     <p class="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">{{ $task->description }}</p>
                                 @endif
@@ -231,7 +244,7 @@
                         @forelse ($tasks as $task)
                             <tr wire:key="task-{{ $task->id }}">
                                 <td class="px-4 py-3">
-                                    <p class="font-bold text-slate-900">{{ $task->title }}</p>
+                                    <a href="{{ route('tasks.show', $task) }}" class="font-bold text-slate-900 hover:text-brand">{{ $task->title }}</a>
                                     @if ($task->milestone)
                                         <p class="text-xs text-slate-500">{{ $task->milestone->title }}</p>
                                     @endif

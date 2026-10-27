@@ -8,7 +8,18 @@ use App\Models\Concerns\LogsActivityChanges;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['app_name', 'timezone', 'workdays', 'reminder_time', 'mail_from_address', 'mail_from_name'])]
+#[Fillable([
+    'app_name',
+    'timezone',
+    'workdays',
+    'reminder_time',
+    'mail_from_address',
+    'mail_from_name',
+    'scheduled_report_enabled',
+    'scheduled_report_frequency',
+    'scheduled_report_time',
+    'scheduled_report_last_sent_at',
+])]
 class Setting extends Model
 {
     use LogsActivityChanges;
@@ -17,6 +28,8 @@ class Setting extends Model
     {
         return [
             'workdays' => 'array',
+            'scheduled_report_enabled' => 'boolean',
+            'scheduled_report_last_sent_at' => 'datetime',
         ];
     }
 

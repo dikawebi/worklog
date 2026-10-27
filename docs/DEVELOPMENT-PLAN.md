@@ -314,3 +314,19 @@ Seluruh item Must di Sprint 1–6 tetap wajib selesai sebelum go-live.
 | 7 | Sprint 6: audit viewer, hardening, UAT, go-live | 6 hari |
 
 Total sisa pekerjaan: sekitar 29–31 hari kerja, tergantung kesiapan staging, SMTP, dan UAT.
+
+## 10. Fitur lanjutan setelah MVP
+
+Fitur berikut sudah diimplementasikan di luar cut line MVP:
+
+| Fitur | Status | Catatan |
+|---|---|---|
+| Filter task per project | Selesai | Filter daftar task dan pilihan task pada worklog mengikuti project. |
+| Pencarian global | Selesai | Worklog, project, task, dan anggota; hak akses anggota dibatasi. |
+| Pusat notifikasi | Selesai | Notifikasi penugasan task, mention komentar, tandai dibaca, dan hapus. |
+| Perbaikan mobile UX | Selesai | Board dapat digeser horizontal, tombol simpan worklog sticky, pencarian mobile. |
+| Drag-and-drop board | Selesai | Perubahan status tetap mengikuti aturan workflow. |
+| Laporan terjadwal | Selesai | Harian, mingguan, atau bulanan via email dengan lampiran CSV. |
+| Komentar dan mention | Selesai | Komentar pada task dan worklog, mention `@handle` mengirim notifikasi. |
+
+Pengaturan laporan terjadwal tersedia di `/admin/settings`. Command `reports:send-scheduled` dijalankan scheduler setiap menit dan hanya mengirim sesuai frekuensi serta jam yang dipilih.

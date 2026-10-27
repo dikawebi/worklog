@@ -101,12 +101,14 @@ Tambahkan lewat cPanel → Cron Jobs, setiap menit:
 Scheduler menjalankan:
 
 - `worklog:send-reminders` setiap menit; command memeriksa hari kerja dan jam dari `settings`.
-- Queue worker jika nanti ada job queued; saat ini pengiriman email reminder berjalan sinkron.
+- `reports:send-scheduled` setiap menit; command mengirim laporan harian, mingguan, atau bulanan sesuai `settings` kepada manager dan admin aktif.
+- Queue worker jika nanti ada job queued; saat ini pengiriman email reminder dan laporan berjalan sinkron.
 
 Uji manual:
 
 ```bash
 php artisan worklog:send-reminders
+php artisan reports:send-scheduled
 php artisan schedule:list
 ```
 
@@ -117,6 +119,10 @@ php artisan schedule:list
 - Cek `/admin/users`, `/admin/categories`, `/admin/settings`.
 - Isi worklog uji, lalu cek `/feed`, `/reports`, export CSV, print view.
 - Buat task uji, ubah status sampai selesai.
+- Cari worklog, project, task, dan anggota melalui pencarian global.
+- Buka pusat notifikasi setelah task di-assign atau anggota disebut di komentar.
+- Coba filter task per project dan drag-and-drop di board.
+- Aktifkan laporan terjadwal, lalu jalankan `php artisan reports:send-scheduled`.
 - Cek `/admin/audit` dan `/admin/trash`.
 - Kirim reminder uji ke satu akun.
 - Pastikan `APP_DEBUG=false` dan error tidak tampil ke pengguna.
@@ -178,6 +184,11 @@ Uji restore di staging sebelum go-live.
 - [ ] Export CSV terbuka di Excel.
 - [ ] Print view bersih saat disimpan sebagai PDF.
 - [ ] Reminder hanya terkirim ke user yang belum mengisi.
+- [ ] Pencarian global menghormati hak akses anggota.
+- [ ] Notifikasi task dan mention tampil serta bisa ditandai dibaca.
+- [ ] Komentar dan mention berfungsi pada task dan worklog.
+- [ ] Board bisa diubah lewat drag-and-drop dan tombol status.
+- [ ] Laporan terjadwal terkirim ke manager/admin dengan lampiran CSV.
 - [ ] Audit log menampilkan nilai lama dan baru.
 - [ ] Admin memulihkan worklog/lampiran yang dihapus.
 - [ ] Backup dan restore diuji di staging.

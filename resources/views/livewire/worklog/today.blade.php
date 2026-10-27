@@ -41,7 +41,7 @@
                     <div class="grid gap-4 md:grid-cols-3">
                         <div>
                             <label for="entry-project-{{ $index }}" class="worklog-label">Project <span class="font-normal text-slate-400">(opsional)</span></label>
-                            <select id="entry-project-{{ $index }}" wire:model="entries.{{ $index }}.project_id" class="worklog-input">
+                            <select id="entry-project-{{ $index }}" wire:model.live="entries.{{ $index }}.project_id" class="worklog-input">
                                 <option value="">Pilih project</option>
                                 @foreach ($projects as $project)
                                     <option value="{{ $project->id }}">{{ $project->code }} — {{ $project->name }}</option>
@@ -52,12 +52,14 @@
 
                         <div>
                             <label for="entry-task-{{ $index }}" class="worklog-label">Task <span class="font-normal text-slate-400">(opsional)</span></label>
-                            <select id="entry-task-{{ $index }}" wire:model="entries.{{ $index }}.task_id" class="worklog-input">
+                            <select id="entry-task-{{ $index }}" wire:model.live="entries.{{ $index }}.task_id" class="worklog-input">
                                 <option value="">Pilih task</option>
                                 @foreach ($tasks as $task)
-                                    <option value="{{ $task->id }}">{{ $task->title }}{{ $task->project ? ' — '.$task->project->code : '' }}</option>
+                                    @continue($entry['project_id'] && (string) $task->project_id !== (string) $entry['project_id'])
+                                    <option value="{{ $task->id }}">{{ $task->title }}{{ $task->project ? ' - '.$task->project->code : '' }}</option>
                                 @endforeach
                             </select>
+                            <p class="mt-1 text-xs text-slate-500">Pilih project untuk memfilter task.</p>
                             @error("entries.{$index}.task_id") <p class="mt-1 text-xs font-semibold text-rose-600">{{ $message }}</p> @enderror
                         </div>
 
@@ -130,7 +132,7 @@
             @error('notes') <p class="mt-1 text-xs font-semibold text-rose-600">{{ $message }}</p> @enderror
         </div>
 
-        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="sticky bottom-0 z-10 -mx-4 flex flex-col-reverse gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:flex-row sm:items-center sm:justify-between sm:border-0 sm:bg-transparent sm:p-0">
             <p class="text-xs font-semibold text-slate-500">Tidak ada durasi atau total jam yang perlu diisi.</p>
             <button type="submit" class="ui-button-primary w-full sm:w-auto" wire:loading.attr="disabled">
                 <span wire:loading.remove wire:target="save">Simpan Worklog</span>

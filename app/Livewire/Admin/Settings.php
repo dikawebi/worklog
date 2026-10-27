@@ -23,6 +23,14 @@ class Settings extends Component
 
     public ?string $mailFromName = null;
 
+    public bool $scheduledReportEnabled = false;
+
+    public string $scheduledReportFrequency = 'weekly';
+
+    public string $scheduledReportTime = '08:00';
+
+    public ?string $scheduledReportLastSentAt = null;
+
     public ?string $successMessage = null;
 
     public function mount(): void
@@ -37,6 +45,10 @@ class Settings extends Component
         $this->reminderTime = substr((string) $settings->reminder_time, 0, 5);
         $this->mailFromAddress = $settings->mail_from_address;
         $this->mailFromName = $settings->mail_from_name;
+        $this->scheduledReportEnabled = (bool) $settings->scheduled_report_enabled;
+        $this->scheduledReportFrequency = $settings->scheduled_report_frequency ?? 'weekly';
+        $this->scheduledReportTime = substr((string) ($settings->scheduled_report_time ?? '08:00:00'), 0, 5);
+        $this->scheduledReportLastSentAt = $settings->scheduled_report_last_sent_at?->translatedFormat('d M Y H:i');
     }
 
     public function save(): void
@@ -52,6 +64,9 @@ class Settings extends Component
             'reminderTime' => ['required', 'date_format:H:i'],
             'mailFromAddress' => ['nullable', 'email', 'max:255'],
             'mailFromName' => ['nullable', 'string', 'max:100'],
+            'scheduledReportEnabled' => ['boolean'],
+            'scheduledReportFrequency' => ['required', 'in:daily,weekly,monthly'],
+            'scheduledReportTime' => ['required', 'date_format:H:i'],
         ]);
 
         $workdays = array_values(array_unique(array_map('intval', $this->workdays)));
@@ -64,6 +79,9 @@ class Settings extends Component
             'reminder_time' => $this->reminderTime.':00',
             'mail_from_address' => $this->mailFromAddress ?: null,
             'mail_from_name' => $this->mailFromName ?: null,
+            'scheduled_report_enabled' => $this->scheduledReportEnabled,
+            'scheduled_report_frequency' => $this->scheduledReportFrequency,
+            'scheduled_report_time' => $this->scheduledReportTime.':00',
         ]);
 
         config([

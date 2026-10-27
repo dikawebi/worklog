@@ -40,4 +40,9 @@ class DailyReport extends Model
     {
         return $this->morphMany(Attachment::class, 'attachable');
     }
+
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
 }

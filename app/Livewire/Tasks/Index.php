@@ -11,6 +11,7 @@ use App\Models\Milestone;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
+use App\Notifications\TaskAssigned;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -173,6 +174,8 @@ class Index extends Component
             }
         }
 
+        $previousAssignee = $task->exists ? $task->assignee_id : null;
+
         $task->fill([
             'project_id' => $this->projectId,
             'milestone_id' => $this->milestoneId ?: null,
@@ -189,6 +192,10 @@ class Index extends Component
         }
 
         $task->save();
+
+        if ($task->assignee_id && $task->assignee_id !== $previousAssignee && $task->assignee_id !== auth()->id()) {
+            $task->assignee?->notify(new TaskAssigned($task, auth()->user()));
+        }
 
         $this->successMessage = $this->editingId
             ? 'Task berhasil diperbarui.'

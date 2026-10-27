@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\DailyReport;
+use App\Models\Project;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -74,5 +76,42 @@ class WorklogTest extends TestCase
             ->assertHasErrors(['date']);
 
         $this->assertDatabaseCount('daily_reports', 0);
+    }
+
+    public function test_worklog_task_options_are_filtered_by_selected_project(): void
+    {
+        $user = User::factory()->manager()->create();
+        $firstProject = Project::query()->create([
+            'code' => 'PRJ-WL-A',
+            'name' => 'Project Worklog A',
+            'status' => 'active',
+            'owner_id' => $user->id,
+        ]);
+        $secondProject = Project::query()->create([
+            'code' => 'PRJ-WL-B',
+            'name' => 'Project Worklog B',
+            'status' => 'active',
+            'owner_id' => $user->id,
+        ]);
+        Task::query()->create([
+            'project_id' => $firstProject->id,
+            'created_by_id' => $user->id,
+            'title' => 'Task di project A',
+            'status' => 'todo',
+            'priority' => 'normal',
+        ]);
+        Task::query()->create([
+            'project_id' => $secondProject->id,
+            'created_by_id' => $user->id,
+            'title' => 'Task di project B',
+            'status' => 'todo',
+            'priority' => 'normal',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test('worklog.today', ['date' => today()->format('Y-m-d')])
+            ->set('entries.0.project_id', (string) $firstProject->id)
+            ->assertSee('Task di project A')
+            ->assertDontSee('Task di project B');
     }
 }

@@ -173,6 +173,23 @@ class TasksTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_task_list_can_be_filtered_by_project(): void
+    {
+        $manager = User::factory()->manager()->create();
+        $assignee = User::factory()->create();
+        $firstProject = $this->project($manager, 'PRJ-FILTER-A');
+        $secondProject = $this->project($manager, 'PRJ-FILTER-B');
+
+        $this->task($firstProject, $assignee, 'Task project pertama');
+        $this->task($secondProject, $assignee, 'Task project kedua');
+
+        Livewire::actingAs($manager)
+            ->test('tasks.index')
+            ->set('projectFilter', (string) $firstProject->id)
+            ->assertSee('Task project pertama')
+            ->assertDontSee('Task project kedua');
+    }
+
     private function project(User $owner, string $code): Project
     {
         return Project::query()->create([

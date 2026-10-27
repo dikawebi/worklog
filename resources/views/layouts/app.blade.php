@@ -76,7 +76,29 @@
                             <p class="truncate text-xs text-slate-500">Aktivitas harian dan progres tim IT</p>
                         </div>
 
-                        <span class="hidden text-xs font-semibold text-slate-500 sm:inline">
+                        <form method="GET" action="{{ route('search') }}" class="relative hidden md:block">
+                            <label for="topbar-search" class="sr-only">Pencarian global</label>
+                            <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path stroke-linecap="round" d="m20 20-3.5-3.5" /></svg>
+                            <input id="topbar-search" name="q" value="{{ request()->routeIs('search') ? request('q') : '' }}" type="search" class="w-44 rounded-lg border border-slate-200 bg-slate-50 py-2 ps-9 pe-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 lg:w-64" placeholder="Cari apa saja...">
+                        </form>
+
+                        <a href="{{ route('search') }}" class="app-icon-button md:hidden" aria-label="Buka pencarian">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path stroke-linecap="round" d="m20 20-3.5-3.5" /></svg>
+                        </a>
+
+                        @php($notificationCount = auth()->user()->unreadNotifications()->count())
+                        <a href="{{ route('notifications.index') }}" class="app-icon-button relative" aria-label="Notifikasi{{ $notificationCount > 0 ? ' ('.$notificationCount.' belum dibaca)' : '' }}">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 1 1-6 0" />
+                            </svg>
+                            @if ($notificationCount > 0)
+                                <span class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-extrabold leading-none text-white">
+                                    {{ $notificationCount > 9 ? '9+' : $notificationCount }}
+                                </span>
+                            @endif
+                        </a>
+
+                        <span class="hidden text-xs font-semibold text-slate-500 xl:inline">
                             {{ now()->translatedFormat('l, d F Y') }}
                         </span>
 

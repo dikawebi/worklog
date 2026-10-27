@@ -65,7 +65,7 @@
             <div>
                 <p class="text-xs font-bold uppercase tracking-[0.14em] text-brand">Email</p>
                 <h2 class="mt-1 text-lg font-bold text-slate-900">Pengirim notifikasi</h2>
-                <p class="mt-1 text-sm text-slate-500">Alamat ini dipakai saat fitur pengingat email diaktifkan pada Sprint 5.</p>
+                <p class="mt-1 text-sm text-slate-500">Alamat ini dipakai untuk pengingat worklog dan laporan terjadwal.</p>
             </div>
 
             <div class="mt-5 grid gap-4 md:grid-cols-2">
@@ -79,6 +79,47 @@
                     <input id="settings-mail-name" type="text" wire:model="mailFromName" maxlength="100" class="worklog-input" placeholder="IT Worklog">
                     @error('mailFromName') <p class="mt-1 text-xs font-semibold text-rose-600">{{ $message }}</p> @enderror
                 </div>
+            </div>
+        </section>
+
+        <section class="ui-card p-5 sm:p-6">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-[0.14em] text-brand">Laporan terjadwal</p>
+                    <h2 class="mt-1 text-lg font-bold text-slate-900">Ringkasan otomatis via email</h2>
+                    <p class="mt-1 text-sm text-slate-500">Laporan dikirim ke seluruh manager dan admin aktif. Lampiran CSV berisi detail pekerjaan.</p>
+                </div>
+
+                <label class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700">
+                    <input type="checkbox" wire:model="scheduledReportEnabled" class="rounded border-slate-300 text-brand focus:ring-brand">
+                    Aktifkan
+                </label>
+            </div>
+
+            <div class="mt-5 grid gap-4 md:grid-cols-2">
+                <div>
+                    <label for="settings-report-frequency" class="worklog-label">Frekuensi</label>
+                    <select id="settings-report-frequency" wire:model="scheduledReportFrequency" class="worklog-input">
+                        <option value="daily">Harian — kemarin</option>
+                        <option value="weekly">Mingguan — Senin, minggu lalu</option>
+                        <option value="monthly">Bulanan — tanggal 1, bulan lalu</option>
+                    </select>
+                    @error('scheduledReportFrequency') <p class="mt-1 text-xs font-semibold text-rose-600">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label for="settings-report-time" class="worklog-label">Jam kirim</label>
+                    <input id="settings-report-time" type="time" wire:model="scheduledReportTime" class="worklog-input">
+                    @error('scheduledReportTime') <p class="mt-1 text-xs font-semibold text-rose-600">{{ $message }}</p> @enderror
+                </div>
+            </div>
+
+            <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-500">
+                Jadwal mengikuti zona waktu aplikasi. Untuk frekuensi mingguan, laporan dikirim setiap hari Senin. Untuk bulanan, setiap tanggal 1.
+                @if ($scheduledReportLastSentAt)
+                    <span class="mt-1 block font-semibold text-slate-600">Terakhir terkirim: {{ $scheduledReportLastSentAt }}.</span>
+                @else
+                    <span class="mt-1 block font-semibold text-slate-600">Belum pernah terkirim.</span>
+                @endif
             </div>
         </section>
 

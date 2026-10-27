@@ -67,4 +67,34 @@ class AdminSettingsTest extends TestCase
             ->call('save')
             ->assertHasErrors(['workdays']);
     }
+
+    public function test_admin_can_enable_scheduled_reports(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        Livewire::actingAs($admin)
+            ->test('admin.settings')
+            ->set('scheduledReportEnabled', true)
+            ->set('scheduledReportFrequency', 'monthly')
+            ->set('scheduledReportTime', '09:15')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $settings = Setting::current();
+
+        $this->assertTrue($settings->scheduled_report_enabled);
+        $this->assertSame('monthly', $settings->scheduled_report_frequency);
+        $this->assertSame('09:15:00', $settings->scheduled_report_time);
+    }
+
+    public function test_scheduled_report_frequency_must_be_supported(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        Livewire::actingAs($admin)
+            ->test('admin.settings')
+            ->set('scheduledReportFrequency', 'hourly')
+            ->call('save')
+            ->assertHasErrors(['scheduledReportFrequency']);
+    }
 }
