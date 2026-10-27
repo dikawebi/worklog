@@ -49,26 +49,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::view('/users', 'placeholder', [
-            'title' => 'Users',
-            'description' => 'Kelola akun, role, jabatan, dan status aktif anggota tim.',
-            'icon' => 'users',
-        ])->name('users');
-
-        Route::view('/categories', 'placeholder', [
-            'title' => 'Kategori',
-            'description' => 'Kelola kategori pekerjaan seperti Development, Support, dan Meeting.',
-            'icon' => 'categories',
-        ])->name('categories');
-
-        Route::view('/settings', 'placeholder', [
-            'title' => 'Pengaturan',
-            'description' => 'Atur zona waktu, hari kerja, dan jadwal pengingat worklog.',
-            'icon' => 'settings',
-        ])->name('settings');
+        Route::view('/users', 'admin.users')->name('users');
+        Route::view('/categories', 'admin.categories')->name('categories');
+        Route::view('/settings', 'admin.settings')->name('settings');
 
         Route::view('/audit', 'placeholder', [
             'title' => 'Audit Log',
