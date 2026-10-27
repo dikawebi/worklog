@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
         Route::view('/settings', 'admin.settings')->name('settings');
 
         Route::view('/audit', 'admin.audit')->name('audit');
+        Route::view('/trash', 'admin.trash')->name('trash');
     });
 });
 

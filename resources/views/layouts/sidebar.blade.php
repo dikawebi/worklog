@@ -82,6 +82,11 @@
                             Audit Log
                         </x-sidebar-link>
                     </li>
+                    <li>
+                        <x-sidebar-link :href="route('admin.trash')" :active="request()->routeIs('admin.trash')" icon="audit">
+                            Pemulihan Data
+                        </x-sidebar-link>
+                    </li>
                 </ul>
             </section>
         @endif

@@ -19,7 +19,10 @@ class DashboardTest extends TestCase
 
         $response->assertOk()
             ->assertSee('Selamat datang kembali')
-            ->assertSee('PT BORNEO PRIMA');
+            ->assertSee('PT BORNEO PRIMA')
+            ->assertHeader('X-Content-Type-Options', 'nosniff')
+            ->assertHeader('X-Frame-Options', 'SAMEORIGIN')
+            ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     }
 
     public function test_member_does_not_see_admin_menu(): void
