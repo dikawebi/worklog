@@ -68,6 +68,83 @@
             </div>
         </section>
 
+        <section class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div class="ui-card p-5">
+                <p class="text-sm font-medium text-slate-500">Pekerjaan saya minggu ini</p>
+                <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $myWeekEntries }}</p>
+                <p class="mt-1 text-sm text-slate-500">Entri worklog pribadi</p>
+            </div>
+            <div class="ui-card p-5">
+                <p class="text-sm font-medium text-slate-500">Hari terisi</p>
+                <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $myWeekDays }}</p>
+                <p class="mt-1 text-sm text-slate-500">Hari dengan worklog minggu ini</p>
+            </div>
+            <div class="ui-card p-5">
+                <p class="text-sm font-medium text-slate-500">Task terbuka saya</p>
+                <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ $myOpenTasksCount }}</p>
+                <p class="mt-1 text-sm text-slate-500">Belum selesai</p>
+            </div>
+        </section>
+
+        @if ($canViewTeam)
+            <section class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+                <div class="ui-card p-5 sm:p-6">
+                    <div class="mb-4 flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-[0.14em] text-brand">Manager</p>
+                            <h2 class="mt-1 text-lg font-bold text-slate-900">Belum isi hari ini</h2>
+                        </div>
+                        <span class="ui-badge {{ $pendingTodayUsers->isEmpty() ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800' }}">{{ $pendingTodayUsers->count() }} anggota</span>
+                    </div>
+
+                    <div class="space-y-2">
+                        @forelse ($pendingTodayUsers as $pendingUser)
+                            <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 px-3 py-2">
+                                <div>
+                                    <p class="text-sm font-bold text-slate-900">{{ $pendingUser->name }}</p>
+                                    <p class="text-xs text-slate-500">{{ $pendingUser->position ?: 'Anggota tim' }}</p>
+                                </div>
+                                <span class="ui-badge bg-amber-100 text-amber-800">Belum</span>
+                            </div>
+                        @empty
+                            <div class="rounded-xl border border-dashed border-emerald-200 bg-emerald-50 px-4 py-6 text-center">
+                                <p class="text-sm font-bold text-emerald-800">Semua anggota sudah mengisi worklog hari ini.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <div class="ui-card p-5 sm:p-6">
+                    <div class="mb-4">
+                        <p class="text-xs font-bold uppercase tracking-[0.14em] text-brand">Manager</p>
+                        <h2 class="mt-1 text-lg font-bold text-slate-900">Aktivitas minggu ini</h2>
+                    </div>
+
+                    <div class="table-wrap overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-500">
+                                <tr><th class="px-3 py-2">Anggota</th><th class="px-3 py-2">Pekerjaan</th><th class="px-3 py-2">Hari</th></tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                @forelse ($weeklyActivity as $row)
+                                    <tr>
+                                        <td class="px-3 py-2">
+                                            <p class="font-semibold text-slate-900">{{ $row['name'] }}</p>
+                                            <p class="text-xs text-slate-500">{{ $row['position'] ?: 'Anggota tim' }}</p>
+                                        </td>
+                                        <td class="px-3 py-2 font-bold text-slate-700">{{ $row['entries'] }}</td>
+                                        <td class="px-3 py-2 text-slate-600">{{ $row['days'] }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="3" class="px-3 py-6 text-center text-sm text-slate-500">Belum ada aktivitas minggu ini.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        @endif
+
         <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
             <section class="ui-card p-5 sm:p-6 xl:col-span-2">
                 <div class="mb-5 flex items-end justify-between gap-4">

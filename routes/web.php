@@ -4,6 +4,8 @@ use App\Http\Controllers\AttachmentDownloadController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectShowController;
+use App\Http\Controllers\ReportExportController;
+use App\Http\Controllers\ReportPrintController;
 use App\Http\Controllers\WorklogController;
 use App\Http\Controllers\WorklogShowController;
 use Illuminate\Support\Facades\Route;
@@ -37,11 +39,9 @@ Route::middleware('auth')->group(function () {
 
     Route::view('/tasks', 'tasks.index')->name('tasks.index');
 
-    Route::view('/reports', 'placeholder', [
-        'title' => 'Laporan',
-        'description' => 'Ringkasan hari terisi, jumlah pekerjaan, dan progres project.',
-        'icon' => 'reports',
-    ])->name('reports.index');
+    Route::view('/reports', 'reports.index')->name('reports.index');
+    Route::get('/reports/export', ReportExportController::class)->name('reports.export');
+    Route::get('/reports/print', ReportPrintController::class)->name('reports.print');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

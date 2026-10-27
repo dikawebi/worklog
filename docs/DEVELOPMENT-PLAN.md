@@ -47,7 +47,7 @@ npm run build
 | 2 | Project, anggota, milestone | Selesai | — |
 | 3 | Task dan penyempurnaan worklog | Selesai | Integrasi filter task di worklog opsional |
 | 4 | Worklog, lampiran, audit dasar, feed | Hampir selesai | Restore UI (US-33) |
-| 5 | Dashboard, laporan, reminder | Belum | Seluruh US-24 s.d. US-31 |
+| 5 | Dashboard, laporan, reminder | Selesai | — |
 | 6 | Audit viewer, hardening, UAT, go-live | Sebagian | Restore, hardening, deploy, backup, UAT |
 
 Catatan eksekusi:
@@ -55,7 +55,8 @@ Catatan eksekusi:
 - Commit `c47682e` — Sprint 1: login user aktif, admin users, kategori, settings, profil.
 - Commit `eef0039` — Sprint 2/3: task CRUD, workflow status, Tugas Saya, board, overdue milestone.
 - Commit Sprint 4/6 — audit logging, audit viewer, batas lampiran, hapus lampiran, dan hapus entri terakhir.
-- Audit viewer dan audit logging sudah berjalan; 73 test lulus dan Pint bersih.
+- Commit Sprint 5 — metrik dashboard, laporan terfilter, CSV, print view, dan reminder email.
+- Audit viewer, laporan, dan reminder sudah berjalan; 85 test lulus dan Pint bersih.
 - `public/hot` sudah dihapus dan asset produksi sudah dibangun.
 
 ## 4. Rencana per sprint
